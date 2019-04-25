@@ -17,7 +17,7 @@ import conda_build.api
 def gh_token():
     try:
         with open(
-            os.path.expanduser("~/.conda-smithy/github.token"), "r"
+            os.path.expanduser("~/.nwb-extensions-smithy/github.token"), "r"
         ) as fh:
             token = fh.read().strip()
         if not token:
@@ -25,7 +25,7 @@ def gh_token():
     except (IOError, ValueError):
         msg = (
             "No github token. Go to https://github.com/settings/tokens/new and generate\n"
-            "a token with repo access. Put it in ~/.conda-smithy/github.token"
+            "a token with repo access. Put it in ~/.nwb-extensions-smithy/github.token"
         )
         raise RuntimeError(msg)
     return token
@@ -69,7 +69,7 @@ def has_in_members(team, member):
 
 def get_cached_team(org, team_name, description=""):
     cached_file = os.path.expanduser(
-        "~/.conda-smithy/{}-{}-team".format(org.login, team_name)
+        "~/.nwb-extensions-smithy/{}-{}-team".format(org.login, team_name)
     )
     try:
         with open(cached_file, "r") as fh:

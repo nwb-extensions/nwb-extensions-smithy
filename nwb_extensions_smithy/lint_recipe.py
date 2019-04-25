@@ -136,7 +136,7 @@ def lintify(meta, recipe_dir=None, conda_forge=False):
 
     recipe_dirname = os.path.basename(recipe_dir) if recipe_dir else "recipe"
     is_staged_recipes = recipe_dirname != "recipe"
-    
+
     # 0: Top level keys should be expected
     unexpected_sections = []
     for section in major_sections:
@@ -447,9 +447,9 @@ def run_conda_forge_specific(meta, recipe_dir, lints, hints):
     recipe_name = package_section.get("name", "").strip()
     is_staged_recipes = recipe_dirname != "recipe"
 
-    # 1: Check that the recipe does not exist in conda-forge or bioconda
+    # 1: Check that the recipe does not exist in cnwb-extensions-test or bioconda
     if is_staged_recipes and recipe_name:
-        cf = gh.get_user(os.getenv("GH_ORG", "conda-forge"))
+        cf = gh.get_user(os.getenv("GH_ORG", "nwb-extensions-test"))
         try:
             cf.get_repo("{}-feedstock".format(recipe_name))
             feedstock_exists = True
@@ -457,7 +457,7 @@ def run_conda_forge_specific(meta, recipe_dir, lints, hints):
             feedstock_exists = False
 
         if feedstock_exists:
-            lints.append("Feedstock with the same name exists in conda-forge")
+            lints.append("Feedstock with the same name exists in nwb-extensions-test")
 
         bio = gh.get_user("bioconda").get_repo("bioconda-recipes")
         try:

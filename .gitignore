@@ -3,7 +3,7 @@
 feedstock-repos.json
 *.pyc
 build/
-conda_smithy.egg-info/
+nwb_extensions_smithy.egg-info/
 dist/
 .cache
 .DS_Store

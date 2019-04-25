@@ -5,22 +5,22 @@ import versioneer
 
 def main():
     skw = dict(
-        name="conda-smithy",
+        name="nwb-extensions-smithy",
         version=versioneer.get_version(),
-        description="A package to create repositories for conda recipes, and automate "
+        description="A package to create extensions for NWB, and automate "
         "their building with CI tools on Linux, OSX and Windows.",
-        author="Phil Elson",
-        author_email="pelson.pub@gmail.com",
-        url="https://github.com/conda-forge/conda-smithy",
+        author="Ryan Ly",
+        author_email="rly@lbl.gov",
+        url="https://github.com/nwb-extensions-test/nwb-extensions-smithy",
         entry_points=dict(
             console_scripts=[
-                "feedstocks = conda_smithy.feedstocks:main",
-                "conda-smithy = conda_smithy.cli:main",
+                "feedstocks = nwb_extensions_smithy.feedstocks:main",
+                "nwb-extensions-smithy = nwb_extensions_smithy.cli:main",
             ]
         ),
         include_package_data=True,
-        packages=["conda_smithy"],
-        # As conda-smithy has resources as part of the codebase, it is
+        packages=["nwb_extensions_smithy"],
+        # As nwb-extensions-smithy has resources as part of the codebase, it is
         # not zip-safe.
         zip_safe=False,
         cmdclass=versioneer.get_cmdclass(),

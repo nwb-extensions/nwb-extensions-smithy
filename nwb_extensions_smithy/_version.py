@@ -42,8 +42,8 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = "pep440-pre"
     cfg.tag_prefix = "v"
-    cfg.parentdir_prefix = "conda-smithy-"
-    cfg.versionfile_source = "conda_smithy/_version.py"
+    cfg.parentdir_prefix = "nwb-extensions-smithy-"
+    cfg.versionfile_source = "nwb_extensions_smithy/_version.py"
     cfg.verbose = False
     return cfg
 

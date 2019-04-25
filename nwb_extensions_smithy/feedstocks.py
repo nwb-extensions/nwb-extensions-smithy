@@ -30,8 +30,8 @@ def cloned_feedstocks(feedstocks_directory):
     The feedstock will be generated as an argparse.Namespace and can be used:
 
         for feedstock in cloned_feedstocks(path_to_feedstocks_directory):
-            print(feedstock.name)  # The name of the feedstock, e.g. conda-smithy-feedstock
-            print(feedstock.package)  # The name of the package within the feedstock, e.g. conda-smithy
+            print(feedstock.name)  # The name of the feedstock, e.g. nwb-extensions-smithy-feedstock
+            print(feedstock.package)  # The name of the package within the feedstock, e.g. nwb-extensions-smithy
             print(feedstock.directory)  # The absolute path to the repo
 
     """
@@ -159,7 +159,7 @@ def feedstocks_repos(
     ----------
     pull_up_to_date : bool (default: False)
         If True, clone all (missing) feedstocks before operation, and fetch
-        all feedstocks as each one is being yielded. 
+        all feedstocks as each one is being yielded.
     randomise: bool (default: False)
         If True, randomise the order of the generated feedstocks. This is
         especially useful if no particular priority should be given to
@@ -290,14 +290,14 @@ def main():
     )
     list_feedstocks = subparsers.add_parser("list", help=list_feedstocks_help)
     list_feedstocks.set_defaults(func=feedstocks_list_handle_args)
-    list_feedstocks.add_argument("--organization", default="conda-forge")
+    list_feedstocks.add_argument("--organization", default="nwb-extensions-test")
 
     clone_feedstocks = subparsers.add_parser(
         "clone",
         help="Clone all of the feedstocks available on the GitHub organization.",
     )
     clone_feedstocks.set_defaults(func=feedstocks_clone_all_handle_args)
-    clone_feedstocks.add_argument("--organization", default="conda-forge")
+    clone_feedstocks.add_argument("--organization", default="nwb-extensions-test")
     clone_feedstocks.add_argument("--feedstocks-directory", default="./")
 
     list_cloned_feedstocks = subparsers.add_parser(

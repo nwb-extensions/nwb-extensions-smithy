@@ -1,6 +1,6 @@
 [run]
 branch = True
-source = conda_smithy
+source = nwb_extensions_smithy
 parallel = True
 omit =
     *feedstock_content/*

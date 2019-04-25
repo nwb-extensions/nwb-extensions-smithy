@@ -73,7 +73,7 @@ class Init(Subcommand):
     subcommand = "init"
 
     def __init__(self, parser):
-        # conda-smithy init /path/to/udunits-recipe ./
+        # nwb-extensions-smithy init /path/to/udunits-recipe ./
 
         super(Init, self).__init__(
             parser,
@@ -110,7 +110,7 @@ class Init(Subcommand):
         feedstock_directory = args.feedstock_directory.format(
             package=argparse.Namespace(name=meta.name())
         )
-        msg = "Initial feedstock commit with conda-smithy {}.".format(
+        msg = "Initial feedstock commit with nwb-extensions-smithy {}.".format(
             __version__
         )
 
@@ -123,7 +123,7 @@ class Init(Subcommand):
 
         print(
             "\nRepository created, please edit conda-forge.yml to configure the upload channels\n"
-            "and afterwards call 'conda smithy register-github'"
+            "and afterwards call 'nwb-extensions-smithy register-github'"
         )
 
 
@@ -131,7 +131,7 @@ class RegisterGithub(Subcommand):
     subcommand = "register-github"
 
     def __init__(self, parser):
-        #  conda-smithy register-github ./ --organization=conda-forge
+        #  nwb-extensions-smithy register-github ./ --organization=conda-forge
         super(RegisterGithub, self).__init__(
             parser, "Register a repo for a feedstock at github."
         )
@@ -152,7 +152,7 @@ class RegisterGithub(Subcommand):
         )
         group.add_argument(
             "--organization",
-            default="conda-forge",
+            default="nwb-extensions-test",
             help="github organisation under which to register this repo",
         )
         scp.add_argument(
@@ -180,7 +180,7 @@ class RegisterCI(Subcommand):
     subcommand = "register-ci"
 
     def __init__(self, parser):
-        # conda-smithy register-ci ./
+        # nwb-extensions-smithy register-ci ./
         super(RegisterCI, self).__init__(
             parser,
             "Register a feedstock at the CI " "services which do the builds.",
@@ -197,7 +197,7 @@ class RegisterCI(Subcommand):
         )
         group.add_argument(
             "--organization",
-            default="conda-forge",
+            default="nwb-extensions-test",
             help="github organisation under which to register this repo",
         )
         for ci in ["Azure", "Travis", "Circle", "Appveyor"]:
@@ -236,7 +236,7 @@ class RegisterCI(Subcommand):
             if azure_ci_utils.default_config.token is None:
                 print(
                     "No azure token.  Create a token at https://dev.azure.com/conda-forge/_usersSettings/tokens and\n"
-                    "put it in ~/.conda-smithy/azure.token"
+                    "put it in ~/.nwb-extensions-smithy/azure.token"
                 )
             ci_register.add_project_to_azure(owner, repo)
         else:
@@ -260,7 +260,7 @@ class AddAzureBuildId(Subcommand):
     subcommand = "azure-buildid"
 
     def __init__(self, parser):
-        # conda-smithy azure-buildid ./
+        # nwb-extensions-smithy azure-buildid ./
         super(AddAzureBuildId, self).__init__(
             parser,
             dedent("Update the azure configuration stored in the config file.")
@@ -333,7 +333,7 @@ class Regenerate(Subcommand):
         scp.add_argument(
             "--no-check-uptodate",
             action="store_true",
-            help="Don't check that conda-smithy and conda-forge-pinning are uptodate",
+            help="Don't check that nwb-extensions-smithy and conda-forge-pinning are uptodate",
         )
         scp.add_argument(
             "-e",
@@ -400,7 +400,7 @@ class UpdateCB3(Subcommand):
     subcommand = "update-cb3"
 
     def __init__(self, parser):
-        # conda-smithy update-cb3 ./
+        # nwb-extensions-smithy update-cb3 ./
         super(UpdateCB3, self).__init__(
             parser, "Update a feedstock for conda-build=3"
         )
@@ -463,7 +463,7 @@ def main():
         "--version",
         action="version",
         version=__version__,
-        help="Show conda-smithy's version, and exit.",
+        help="Show nwb-extensions-smithy's version, and exit.",
     )
 
     if not sys.argv[1:]:
@@ -475,7 +475,7 @@ def main():
     CONDA_VERSION_MAX = "4.7"
     if LooseVersion(conda.__version__) >= LooseVersion(CONDA_VERSION_MAX):
         print(
-            "You appear to be using conda {}, but conda-smithy {}\n"
+            "You appear to be using conda {}, but nwb-extensions-smithy {}\n"
             "is currently only compatible with conda versions < {}.\n".format(
                 conda.__version__, __version__, CONDA_VERSION_MAX
             )
