@@ -2,7 +2,7 @@ include requirements.txt
 
 recursive-include nwb_extensions_smithy/feedstock_content *
 recursive-include nwb_extensions_smithy/templates *.tmpl
-recursive-include tests/ *
+recursive-include tests *
 
 include versioneer.py
 include nwb_extensions_smithy/_version.py
