@@ -219,9 +219,9 @@ class RegisterCI(Subcommand):
         print("CI Summary for {}/{} (can take ~30s):".format(owner, repo))
         if args.travis:
             ci_register.add_project_to_travis(owner, repo)
-            ci_register.travis_token_update_conda_forge_config(
-                args.feedstock_directory, owner, repo
-            )
+            #ci_register.travis_token_update_conda_forge_config(
+            #    args.feedstock_directory, owner, repo
+            #)
             time.sleep(1)
             ci_register.travis_configure(owner, repo)
             ci_register.travis_cleanup(owner, repo)
@@ -229,7 +229,7 @@ class RegisterCI(Subcommand):
             print("Travis registration disabled.")
         if args.circle:
             ci_register.add_project_to_circle(owner, repo)
-            ci_register.add_token_to_circle(owner, repo)
+            #ci_register.add_token_to_circle(owner, repo)
         else:
             print("Circle registration disabled.")
         if args.azure:
@@ -243,9 +243,9 @@ class RegisterCI(Subcommand):
             print("Azure registration disabled.")
         if args.appveyor:
             ci_register.add_project_to_appveyor(owner, repo)
-            ci_register.appveyor_encrypt_binstar_token(
-                args.feedstock_directory, owner, repo
-            )
+            #ci_register.appveyor_encrypt_binstar_token(
+            #    args.feedstock_directory, owner, repo
+            #)
             ci_register.appveyor_configure(owner, repo)
         else:
             print("Appveyor registration disabled.")

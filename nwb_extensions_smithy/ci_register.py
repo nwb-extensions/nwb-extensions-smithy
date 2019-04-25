@@ -37,7 +37,7 @@ except (IOError, ValueError):
         "No appveyor token. Create a token at https://ci.appveyor.com/api-token and\n"
         "Put one in ~/.nwb-extensions-smithy/appveyor.token"
     )
-
+'''
 try:
     anaconda_token = os.environ["BINSTAR_TOKEN"]
 except KeyError:
@@ -54,7 +54,7 @@ except KeyError:
             '  anaconda auth --create --name conda-smithy --scopes "repos conda api"\n'
             "and put it in ~/.nwb-extensions-smithy/anaconda.token"
         )
-
+'''
 travis_endpoint = "https://api.travis-ci.org"
 
 
@@ -449,7 +449,8 @@ def add_conda_forge_webservice_hooks(user, repo):
         if "url" in hook["config"]
     }
 
-    hooks = [
+    hooks = []
+    '''
         get_conda_hook_info(
             "https://conda-forge.herokuapp.com/conda-linting/hook",
             ["pull_request"],
@@ -473,6 +474,7 @@ def add_conda_forge_webservice_hooks(user, repo):
             ],
         ),
     ]
+    '''
 
     for hook in hooks:
         hook_url, payload = hook
