@@ -17,7 +17,7 @@ import conda_build.conda_interface
 from conda_build import __version__ as conda_build_version
 from jinja2 import Environment, FileSystemLoader
 
-from conda_smithy.feedstock_io import (
+from .feedstock_io import (
     set_exe_file,
     write_file,
     remove_file,

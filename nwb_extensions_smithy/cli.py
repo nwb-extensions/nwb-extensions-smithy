@@ -172,7 +172,7 @@ class RegisterGithub(Subcommand):
 
         github.create_github_repo(args)
         print(
-            "\nRepository registered at github, now call 'conda smithy register-ci'"
+            "\nRepository registered at github, now call 'nwb-extensions-smithy register-ci'"
         )
 
 
@@ -208,10 +208,11 @@ class RegisterCI(Subcommand):
                 help="If set, {} will be not registered".format(ci),
             )
             default = {ci.lower(): True}
+            default['azure'] = False
             scp.set_defaults(**default)
 
     def __call__(self, args):
-        from conda_smithy import ci_register
+        from nwb_extensions_smithy import ci_register
 
         owner = args.user or args.organization
         repo = os.path.basename(os.path.abspath(args.feedstock_directory))
@@ -422,8 +423,8 @@ class UpdateCB3(Subcommand):
         )
 
     def __call__(self, args):
-        from conda_smithy.update_cb3 import update_cb3
-        from conda_smithy.configure_feedstock import get_cfp_file_path
+        from nwb_extensions_smithy.update_cb3 import update_cb3
+        from nwb_extensions_smithy.configure_feedstock import get_cfp_file_path
 
         recipe_file = os.path.join(args.recipe_directory, "meta.yaml")
         output_file = args.output
