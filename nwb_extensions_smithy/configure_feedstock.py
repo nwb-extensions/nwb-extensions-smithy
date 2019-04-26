@@ -1371,17 +1371,17 @@ def main(
         index = conda_build.conda_interface.get_index(channel_urls=["conda-forge"])
         r = conda_build.conda_interface.Resolve(index)
 
-        # Check that conda-smithy is up-to-date
-        check_version_uptodate(r, "conda-smithy", __version__, True)
+        # Check that nwb-extensions--smithy is up-to-date
+        check_version_uptodate(r, "nwb-extensions-smithy", __version__, True)
         get_cfp_file_path(r, True)
         return True
-       
+
     error_on_warn = False if no_check_uptodate else True
     index = conda_build.conda_interface.get_index(channel_urls=["conda-forge"])
     r = conda_build.conda_interface.Resolve(index)
 
-    # Check that conda-smithy is up-to-date
-    check_version_uptodate(r, "conda-smithy", __version__, error_on_warn)
+    # Check that nwb-extensions--smithy is up-to-date
+    check_version_uptodate(r, "nwb-extensions-smithy", __version__, error_on_warn)
 
     forge_dir = os.path.abspath(forge_file_directory)
 
@@ -1447,7 +1447,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(
-        description=("Configure a feedstock given " "a conda-forge.yml file.")
+        description=("Configure a feedstock given a conda-forge.yml file.")
     )
     parser.add_argument(
         "forge_file_directory",

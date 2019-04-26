@@ -1,15 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-
-try:
-    from collections.abc import Sequence, Mapping
-
-    str_type = str
-except ImportError:  # python 2
-    from collections import Sequence, Mapping
-
-    str_type = basestring
+from collections.abc import Sequence, Mapping
 import copy
 import io
 import itertools
@@ -77,7 +69,7 @@ def get_list_section(parent, name, lints, allow_single=False):
     section = parent.get(name, [])
     if allow_single and isinstance(section, Mapping):
         return [section]
-    elif isinstance(section, Sequence) and not isinstance(section, str_type):
+    elif isinstance(section, Sequence) and not isinstance(section, str):
         return section
     else:
         msg = 'The "{}" section was expected to be a {}list, but got a {}.{}.'.format(
@@ -166,7 +158,7 @@ def lintify(meta, recipe_dir=None, conda_forge=False):
     if not (
         isinstance(extra_section.get("recipe-maintainers", []), Sequence)
         and not isinstance(
-            extra_section.get("recipe-maintainers", []), str_type
+            extra_section.get("recipe-maintainers", []), str
         )
     ):
         lints.append("Recipe maintainers should be a json list.")

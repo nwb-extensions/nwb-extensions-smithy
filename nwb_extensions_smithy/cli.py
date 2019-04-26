@@ -12,7 +12,6 @@ from textwrap import dedent
 import conda
 from distutils.version import LooseVersion
 from conda_build.metadata import MetaData
-from conda_build.utils import ensure_list
 
 from . import configure_feedstock
 from . import feedstock_io
@@ -96,6 +95,7 @@ class Init(Subcommand):
             )
 
         # Get some information about the source recipe.
+        # TODO this reads the meta.yaml file and uses 'name'
         if args.recipe_directory:
             meta = MetaData(args.recipe_directory)
         else:
