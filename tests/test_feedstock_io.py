@@ -12,7 +12,7 @@ import unittest
 import git
 from git.index.typ import BlobFilter
 
-import conda_smithy.feedstock_io as fio
+import nwb_extensions_smithy.feedstock_io as fio
 
 
 def keep_dir(dirname):

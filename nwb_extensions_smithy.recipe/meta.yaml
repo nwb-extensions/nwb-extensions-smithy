@@ -1,7 +1,7 @@
 {% set data = load_setuptools() %}
 
 package:
-  name: conda-smithy
+  name: nwb-extensions-smithy
   version: {{ (data.get('version') or '0.1.0dev2') | replace('+', '_') | replace('/', '_') | replace('-', '_')}}
 
 source:
@@ -11,8 +11,8 @@ build:
   number: 0
   script: python -m pip install --no-deps --ignore-installed .
   entry_points:
-    - feedstocks = conda_smithy.feedstocks:main
-    - conda-smithy = conda_smithy.cli:main
+    - feedstocks = nwb_extensions_smithy.feedstocks:main
+    - nwb-extensions-smithy = nwb_extensions_smithy.cli:main
 
 requirements:
   build:
@@ -24,7 +24,7 @@ requirements:
     - conda-build >=3.1.2
     - jinja2
     - requests
-    - pycrypto
+    - pycryptodome
     - gitpython
     - pygithub <2
     - ruamel.yaml
@@ -36,18 +36,18 @@ test:
     - mock
     - pytest
   imports:
-    - conda_smithy
-    - conda_smithy.ci_register
-    - conda_smithy.configure_feedstock
+    - nwb_extensions_smithy
+    - nwb_extensions_smithy.ci_register
+    - nwb_extensions_smithy.configure_feedstock
   source_files:
     - tests
   commands:
-    - conda smithy --help
+    - nwb-extensions-smithy --help
     - py.test tests
 
 about:
-  home: https://github.com/conda-forge/conda-smithy
+  home: https://github.com/nwb-extensions-test/nwb-extensions-smithy
   license: BSD 3-clause
   license_family: BSD
   license_file: LICENSE.txt
-  summary: A package to create repositories for conda recipes, and automate their building with CI tools on Linux, OSX and Windows.
+  summary: A package to create repositories for NWB extension recipes, and automate their building with CI tools on Linux, OSX and Windows.

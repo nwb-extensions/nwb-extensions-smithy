@@ -1,5 +1,5 @@
 import os
-import conda_smithy.configure_feedstock as cnfgr_fdstk
+import nwb_extensions_smithy.configure_feedstock as cnfgr_fdstk
 
 import pytest
 import copy

@@ -13,7 +13,7 @@ import unittest
 import warnings
 import github
 
-import conda_smithy.lint_recipe as linter
+import nwb_extensions_smithy.lint_recipe as linter
 
 _thisdir = os.path.abspath(os.path.dirname(__file__))
 
@@ -389,7 +389,7 @@ class Test_linter(unittest.TestCase):
                             build:
                               noarch: python
                               script:
-                                - echo "hello" 
+                                - echo "hello"
                             requirements:
                               build:
                                 - python
@@ -401,7 +401,7 @@ class Test_linter(unittest.TestCase):
                 """
                             build:
                               script:
-                                - echo "hello" 
+                                - echo "hello"
                             requirements:
                               build:
                                 - python
@@ -412,7 +412,7 @@ class Test_linter(unittest.TestCase):
                 """
                             build:
                               script:
-                                - echo "hello" 
+                                - echo "hello"
                             requirements:
                               build:
                                 - python
@@ -423,7 +423,7 @@ class Test_linter(unittest.TestCase):
                 """
                             build:
                               script:
-                                - echo "hello" 
+                                - echo "hello"
                             requirements:
                               build:
                                 - python
@@ -818,7 +818,7 @@ class TestCLI_recipe_lint(unittest.TestCase):
                     )
                 )
             child = subprocess.Popen(
-                ["conda-smithy", "recipe-lint", recipe_dir], stdout=subprocess.PIPE
+                ["nwb-extensions-smithy", "recipe-lint", recipe_dir], stdout=subprocess.PIPE
             )
             out, _ = child.communicate()
             self.assertEqual(child.returncode, 1, out)
@@ -848,7 +848,7 @@ class TestCLI_recipe_lint(unittest.TestCase):
                     )
                 )
             child = subprocess.Popen(
-                ["conda-smithy", "recipe-lint", recipe_dir], stdout=subprocess.PIPE
+                ["nwb-extensions-smithy", "recipe-lint", recipe_dir], stdout=subprocess.PIPE
             )
             out, _ = child.communicate()
             self.assertEqual(child.returncode, 0, out)
@@ -880,7 +880,7 @@ class TestCLI_recipe_lint(unittest.TestCase):
                     )
                 )
             child = subprocess.Popen(
-                ["conda-smithy", "recipe-lint", recipe_dir], stdout=subprocess.PIPE
+                ["nwb-extensions-smithy", "recipe-lint", recipe_dir], stdout=subprocess.PIPE
             )
             out, _ = child.communicate()
             self.assertEqual(child.returncode, 0, out)
@@ -924,7 +924,7 @@ class TestCLI_recipe_lint(unittest.TestCase):
                 with io.open(os.path.join(recipe_dir, "meta.yaml"), "w") as fh:
                     fh.write(
                         """
-                             {{% set name = "conda-smithy" %}}
+                             {{% set name = "nwb-extensions-smithy" %}}
                              {}
                              """.format(
                             jinja_var

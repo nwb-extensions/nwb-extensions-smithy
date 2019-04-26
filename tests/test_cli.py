@@ -5,7 +5,7 @@ import subprocess
 import yaml
 import shutil
 
-from conda_smithy import cli
+from nwb_extensions_smithy import cli
 
 _thisdir = os.path.abspath(os.path.dirname(__file__))
 

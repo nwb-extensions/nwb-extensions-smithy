@@ -7,7 +7,7 @@ import yaml
 from jinja2 import Environment, FileSystemLoader
 from conda_build.utils import copy_into
 
-from conda_smithy.configure_feedstock import conda_forge_content, _load_forge_config
+from nwb_extensions_smithy.configure_feedstock import conda_forge_content, _load_forge_config
 
 
 RecipeConfigPair = collections.namedtuple("RecipeConfigPair", ("recipe", "config"))

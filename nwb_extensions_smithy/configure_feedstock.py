@@ -1371,7 +1371,7 @@ def main(
         index = conda_build.conda_interface.get_index(channel_urls=["conda-forge"])
         r = conda_build.conda_interface.Resolve(index)
 
-        # Check that nwb-extensions--smithy is up-to-date
+        # Check that nwb-extensions-smithy is up-to-date
         check_version_uptodate(r, "nwb-extensions-smithy", __version__, True)
         get_cfp_file_path(r, True)
         return True
@@ -1380,7 +1380,7 @@ def main(
     index = conda_build.conda_interface.get_index(channel_urls=["conda-forge"])
     r = conda_build.conda_interface.Resolve(index)
 
-    # Check that nwb-extensions--smithy is up-to-date
+    # Check that nwb-extensions-smithy is up-to-date
     check_version_uptodate(r, "nwb-extensions-smithy", __version__, error_on_warn)
 
     forge_dir = os.path.abspath(forge_file_directory)
