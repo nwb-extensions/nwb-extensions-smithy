@@ -21,8 +21,6 @@ from . import azure_ci_utils
 from . import __version__
 
 
-PY2 = sys.version_info[0] == 2
-
 
 def generate_feedstock_content(target_directory, source_recipe_dir):
     target_directory = os.path.abspath(target_directory)
@@ -36,12 +34,12 @@ def generate_feedstock_content(target_directory, source_recipe_dir):
         try:
             configure_feedstock.copytree(source_recipe_dir, target_recipe_dir)
         except Exception as e:
-            import sys
-
             raise type(e)(
                 str(e) + " while copying file %s" % source_recipe_dir
             ).with_traceback(sys.exc_info()[2])
 
+    # Create a conda-forge.yml file in the new recipe dir if it doesn't exist
+    # TODO
     forge_yml = os.path.join(target_directory, "conda-forge.yml")
     if not os.path.exists(forge_yml):
         with feedstock_io.write_file(forge_yml) as fh:
@@ -54,13 +52,9 @@ class Subcommand(object):
     aliases = []
 
     def __init__(self, parser, help=None):
-        if PY2:
-            # aliases not allowed in 2.7 :-(
-            subcommand_parser = parser.add_parser(self.subcommand, help=help)
-        else:
-            subcommand_parser = parser.add_parser(
-                self.subcommand, help=help, aliases=self.aliases
-            )
+        subcommand_parser = parser.add_parser(
+            self.subcommand, help=help, aliases=self.aliases
+        )
 
         subcommand_parser.set_defaults(subcommand_func=self)
         self.subcommand_parser = subcommand_parser
@@ -78,7 +72,7 @@ class Init(Subcommand):
         super(Init, self).__init__(
             parser,
             "Create a feedstock git repository, which can contain "
-            "one conda recipes.",
+            "one NWB extension recipe.",
         )
         scp = self.subcommand_parser
         scp.add_argument(
@@ -96,7 +90,7 @@ class Init(Subcommand):
         if args.recipe_directory and not os.path.isdir(args.recipe_directory):
             raise IOError(
                 "The source recipe directory should be the directory of the "
-                "conda-recipe you want to build a feedstock for. Got {}".format(
+                "NWB Extension you want to build a feedstock for. Got {}".format(
                     args.recipe_directory
                 )
             )
@@ -121,6 +115,7 @@ class Init(Subcommand):
             ["git", "commit", "-m", msg], cwd=feedstock_directory
         )
 
+        # TODO
         print(
             "\nRepository created, please edit conda-forge.yml to configure the upload channels\n"
             "and afterwards call 'nwb-extensions-smithy register-github'"
@@ -183,7 +178,7 @@ class RegisterCI(Subcommand):
         # nwb-extensions-smithy register-ci ./
         super(RegisterCI, self).__init__(
             parser,
-            "Register a feedstock at the CI " "services which do the builds.",
+            "Register a feedstock at the CI services which do the builds.",
         )
         scp = self.subcommand_parser
         scp.add_argument(
@@ -208,7 +203,7 @@ class RegisterCI(Subcommand):
                 help="If set, {} will be not registered".format(ci),
             )
             default = {ci.lower(): True}
-            default['azure'] = False
+            default['azure'] = False # TODO disable azure for now
             scp.set_defaults(**default)
 
     def __call__(self, args):
@@ -315,7 +310,7 @@ class Regenerate(Subcommand):
     def __init__(self, parser):
         super(Regenerate, self).__init__(
             parser,
-            "Regenerate / update the CI support files of the " "feedstock.",
+            "Regenerate / update the CI support files of the feedstock.",
         )
         scp = self.subcommand_parser
         scp.add_argument(
@@ -343,7 +338,10 @@ class Regenerate(Subcommand):
             help="Exclusive conda-build config file to replace conda-forge-pinning. "
             + "For advanced usage only",
         )
-        scp.add_argument("--check", action="store_true", default=False, help="Check if regenerate can be performed")
+        scp.add_argument("--check",
+            action="store_true",
+            default=False,
+            help="Check if regenerate can be performed")
 
     def __call__(self, args):
         configure_feedstock.main(
@@ -359,7 +357,7 @@ class RecipeLint(Subcommand):
     subcommand = "recipe-lint"
 
     def __init__(self, parser):
-        super(RecipeLint, self).__init__(parser, "Lint a single conda recipe.")
+        super(RecipeLint, self).__init__(parser, "Lint a single NWB extension recipe.")
         scp = self.subcommand_parser
         scp.add_argument("--conda-forge", action="store_true")
         scp.add_argument("recipe_directory", default=[os.getcwd()], nargs="*")
@@ -397,50 +395,6 @@ class RecipeLint(Subcommand):
         sys.exit(int(not all_good))
 
 
-class UpdateCB3(Subcommand):
-    subcommand = "update-cb3"
-
-    def __init__(self, parser):
-        # nwb-extensions-smithy update-cb3 ./
-        super(UpdateCB3, self).__init__(
-            parser, "Update a feedstock for conda-build=3"
-        )
-        scp = self.subcommand_parser
-        scp.add_argument(
-            "--recipe_directory",
-            default=os.path.join(os.getcwd(), "recipe"),
-            help="The path to the source recipe directory.",
-        )
-        scp.add_argument(
-            "--output",
-            default=None,
-            help="Filename for the output. No output edits the recipe inplace",
-        )
-        scp.add_argument(
-            "--cbc",
-            default=None,
-            help="Path to conda_build_config.yaml. No path will use conda-forge-pinning",
-        )
-
-    def __call__(self, args):
-        from nwb_extensions_smithy.update_cb3 import update_cb3
-        from nwb_extensions_smithy.configure_feedstock import get_cfp_file_path
-
-        recipe_file = os.path.join(args.recipe_directory, "meta.yaml")
-        output_file = args.output
-        if output_file is None:
-            output_file = recipe_file
-        if args.cbc is None:
-            cbc, _ = get_cfp_file_path()
-        else:
-            cbc = os.path.join(os.getcwd(), args.cbc)
-        output_content, messages = update_cb3(recipe_file, cbc)
-        with io.open(output_file, "w") as fh:
-            fh.write(output_content)
-        print("List of changes done to the recipe:")
-        print(messages)
-
-
 def main():
 
     parser = argparse.ArgumentParser(
@@ -451,14 +405,6 @@ def main():
     # https://reinout.vanrees.org/weblog/2010/01/06/zest-releaser-entry-points.html
     for subcommand in Subcommand.__subclasses__():
         subcommand(subparser)
-    # And the alias for rerender
-    if PY2:
-
-        class Rerender(Regenerate):
-            # A poor-man's alias for regenerate.
-            subcommand = "rerender"
-
-        Rerender(subparser)
 
     parser.add_argument(
         "--version",
@@ -473,6 +419,7 @@ def main():
         args = parser.parse_args()
 
     # Check conda version for compatibility
+    # TODO
     CONDA_VERSION_MAX = "4.7"
     if LooseVersion(conda.__version__) >= LooseVersion(CONDA_VERSION_MAX):
         print(
