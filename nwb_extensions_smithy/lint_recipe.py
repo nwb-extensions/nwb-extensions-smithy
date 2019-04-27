@@ -11,16 +11,14 @@ import re
 import github
 import ruamel.yaml
 
-from conda_build.metadata import (
-    ensure_valid_license_family,
-    FIELDS as cbfields,
-)
+from conda_build.metadata import ensure_valid_license_family
 import conda_build.conda_interface
 
+from .metadata import FIELDS as ndxfields
 from .utils import render_meta_yaml
 
 
-FIELDS = copy.deepcopy(cbfields)
+FIELDS = copy.deepcopy(ndxfields)
 
 # Just in case 'extra' moves into conda_build
 if "extra" not in FIELDS.keys():
