@@ -94,12 +94,12 @@ class Init(Subcommand):
                 )
             )
 
-        # Get some information about the source recipe.
-        # TODO this reads the meta.yaml file and uses 'name'
+        # parse the ndx-meta.yaml file and use package/name for the name of the
+        # feedstock directory
         if args.recipe_directory:
             meta = MetaData(args.recipe_directory)
         else:
-            meta = None
+            raise RuntimeError('Missing path to recipe')
 
         feedstock_directory = args.feedstock_directory.format(
             package=argparse.Namespace(name=meta.name())
@@ -108,7 +108,12 @@ class Init(Subcommand):
             __version__
         )
 
-        os.makedirs(feedstock_directory)
+        try:
+            os.makedirs(feedstock_directory)
+        except FileExistsError:
+            print(f'A feedstock directory with the name {feedstock_directory} '
+                               'already exists.')
+            raise
         subprocess.check_call(["git", "init"], cwd=feedstock_directory)
         generate_feedstock_content(feedstock_directory, args.recipe_directory)
         subprocess.check_call(
