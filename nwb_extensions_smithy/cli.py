@@ -11,13 +11,13 @@ from textwrap import dedent
 
 import conda
 from distutils.version import LooseVersion
-from conda_build.metadata import MetaData
 
 from . import configure_feedstock
 from . import feedstock_io
 from . import lint_recipe
 from . import azure_ci_utils
 from . import __version__
+from .metadata import MetaData
 
 
 
@@ -39,10 +39,10 @@ def generate_feedstock_content(target_directory, source_recipe_dir):
 
     # Create a conda-forge.yml file in the new recipe dir if it doesn't exist
     # TODO
-    forge_yml = os.path.join(target_directory, "conda-forge.yml")
-    if not os.path.exists(forge_yml):
-        with feedstock_io.write_file(forge_yml) as fh:
-            fh.write(u"[]")
+    #forge_yml = os.path.join(target_directory, "conda-forge.yml")
+    #if not os.path.exists(forge_yml):
+    #    with feedstock_io.write_file(forge_yml) as fh:
+    #        fh.write(u"[]")
 
 
 class Subcommand(object):
