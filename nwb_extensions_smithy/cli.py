@@ -172,7 +172,8 @@ class RegisterGithub(Subcommand):
 
         github.create_github_repo(args)
         print(
-            "\nRepository registered at github, now call 'nwb-extensions-smithy register-ci'"
+            "\nRepository registered at github, now call 'nwb-extensions-smithy register-ci "
+            f"--feedstock-directory {args.feedstock_directory}'"
         )
 
 

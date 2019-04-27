@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function
 
 import os
+import os.path
 from random import choice
 
 from git import Repo
@@ -11,7 +12,7 @@ from github.Organization import Organization
 from github.Team import Team
 import github
 
-import conda_build.api
+from .metadata import MetaData
 
 
 def gh_token():
@@ -105,18 +106,8 @@ def get_cached_team(org, team_name, description=""):
 
 def create_github_repo(args):
     token = gh_token()
-    meta = conda_build.api.render(
-        args.feedstock_directory,
-        permit_undefined_jinja=True,
-        finalize=False,
-        bypass_env_check=True,
-        trim_skip=False,
-    )[0][0]
-
-    if "parent_recipe" in meta.meta["extra"]:
-        feedstock_name = meta.meta["extra"]["parent_recipe"]["name"]
-    else:
-        feedstock_name = meta.name()
+    meta = MetaData(os.path.join(args.feedstock_directory, 'recipe'))
+    feedstock_name = meta.name()
 
     gh = Github(token)
     user_or_org = None
@@ -133,7 +124,7 @@ def create_github_repo(args):
         gh_repo = user_or_org.create_repo(
             repo_name,
             has_wiki=False,
-            description="A conda-smithy repository for {}.".format(
+            description="A NWB Extension repository for {}.".format(
                 feedstock_name
             ),
         )
