@@ -120,8 +120,8 @@ class Init(Subcommand):
 
         # TODO
         print(
-            "\nRepository created, please edit conda-forge.yml to configure the upload channels\n"
-            "and afterwards call 'nwb-extensions-smithy register-github'"
+            "\nRepository created, now call 'nwb-extensions-smithy register-github "
+            f"--feedstock-directory {feedstock_directory}'"
         )
 
 
