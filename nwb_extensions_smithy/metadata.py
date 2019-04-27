@@ -35,7 +35,7 @@ class MetaData:
 
         self.meta = {}
         if self.meta_path:
-            self.meta = load(self.meta_path)
+            self.meta = load_file(self.meta_path)
 
 
     def name(self):
@@ -77,8 +77,8 @@ def find_metadata(path):
     return results[0]
 
 
-def load(path):
-    ''' Read the yaml file, run some checks, and sanitize the data '''
+def load_file(path):
+    ''' Read yaml from a yaml file '''
     data = None
     with open(path, 'r') as f:
         try:
@@ -86,6 +86,22 @@ def load(path):
             data = yaml.load(f.read(), Loader=yaml.Loader)
         except yaml.error.YAMLError as e:
             raise RuntimeError(f'Cannot parse metadata in file {path}.')
+    return clean(data)
+
+
+def load_stream(stream):
+    ''' Read yaml from a data stream '''
+    data = None
+    try:
+        # TODO make sure this works with different encodings...
+        data = yaml.load(stream, Loader=yaml.Loader)
+    except yaml.error.YAMLError as e:
+        raise RuntimeError(f'Cannot parse metadata in file {path}.')
+    return clean(data)
+
+
+def clean(data):
+    ''' Check a few things on the yaml file and sanitize the data '''
     if data is None:
         raise RuntimeError(f'There is no data in file {path}.')
     # ensure the known fields are dicts

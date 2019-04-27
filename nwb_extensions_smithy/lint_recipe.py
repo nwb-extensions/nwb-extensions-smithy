@@ -14,8 +14,7 @@ import ruamel.yaml
 from conda_build.metadata import ensure_valid_license_family
 import conda_build.conda_interface
 
-from .metadata import FIELDS as ndxfields
-from .utils import render_meta_yaml
+from .metadata import MetaData, FIELDS as ndxfields
 
 
 FIELDS = copy.deepcopy(ndxfields)
@@ -113,7 +112,7 @@ def lintify(meta, recipe_dir=None, conda_forge=False):
 
     # If the recipe_dir exists (no guarantee within this function) , we can
     # find the meta.yaml within it.
-    meta_fname = os.path.join(recipe_dir or "", "meta.yaml")
+    meta_fname = os.path.join(recipe_dir or "", "ndx-meta.yaml")
 
     sources_section = get_section(meta, "source", lints)
     build_section = get_section(meta, "build", lints)
@@ -517,13 +516,10 @@ def jinja_lines(lines):
 
 def main(recipe_dir, conda_forge=False, return_hints=False):
     recipe_dir = os.path.abspath(recipe_dir)
-    recipe_meta = os.path.join(recipe_dir, "meta.yaml")
     if not os.path.exists(recipe_dir):
-        raise IOError("Feedstock has no recipe/meta.yaml.")
+        raise IOError("Feedstock directory does not exist.")
 
-    with io.open(recipe_meta, "rt") as fh:
-        content = render_meta_yaml("".join(fh))
-        meta = ruamel.yaml.load(content, ruamel.yaml.RoundTripLoader)
+    meta = MetaData(recipe_dir).meta
     results, hints = lintify(meta, recipe_dir, conda_forge)
     if return_hints:
         return results, hints

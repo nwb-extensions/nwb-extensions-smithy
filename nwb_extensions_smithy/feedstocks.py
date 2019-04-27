@@ -9,7 +9,8 @@ from git import Repo, GitCommandError
 from github import Github
 
 from . import github as smithy_github
-from .utils import render_meta_yaml
+
+from .metadata import load_file, load_stream
 
 
 def feedstock_repos(gh_organization):
@@ -205,17 +206,6 @@ def feedstocks_repos(
         yield repo, feedstock
 
 
-def yaml_meta(content):
-    """
-    Read the contents of meta.yaml into a ruamel.yaml document.
-
-    """
-    yaml = ruamel.yaml.load(
-        render_meta_yaml(content), ruamel.yaml.RoundTripLoader
-    )
-    return yaml
-
-
 def feedstocks_yaml(
     organization,
     feedstocks_directory,
@@ -257,18 +247,12 @@ def feedstocks_yaml(
 
             try:
                 if use_local:
-                    with open(
-                        os.path.join(
-                            feedstock.directory, "recipe", "meta.yaml"
-                        ),
-                        "r",
-                    ) as fh:
-                        content = "".join(fh.readlines())
+                    path = os.path.join(feedstock.directory, "recipe", "ndx-meta.yaml")
+                    yaml = load_file(path)
                 else:
-                    blob = ref.commit.tree["recipe"]["meta.yaml"]
-                    stream = blob.data_stream
-                    content = stream.read().decode("utf-8")
-                yaml = yaml_meta(content)
+                    blob = ref.commit.tree["recipe"]["ndx-meta.yaml"]
+                    content = blob.data_stream.read().decode("utf-8")
+                    yaml = load_stream(content)
             except:
                 # Add a helpful comment so we know what we are working with and reraise.
                 print("Failed on {}".format(feedstock.package))

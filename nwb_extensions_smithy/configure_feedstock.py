@@ -1402,7 +1402,7 @@ def main(
             warnings.warn(
                 "It is not allowed to set the `enabled` parameter for `%s`."
                 " All CIs are enabled by default. To disable a CI, please"
-                " add `skip: true` to the `build` section of `meta.yaml`"
+                " add `skip: true` to the `build` section of `ndx-meta.yaml`"
                 " and an appropriate selector so as to disable the build."
                 % each_ci
             )

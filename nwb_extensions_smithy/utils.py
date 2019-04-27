@@ -34,29 +34,6 @@ class MockOS(dict):
         self.sep = "/"
 
 
-def render_meta_yaml(text):
-    env = jinja2.Environment(undefined=NullUndefined)
-
-    # stub out cb3 jinja2 functions - they are not important for linting
-    #    if we don't stub them out, the ruamel.yaml load fails to interpret them
-    #    we can't just use conda-build's api.render functionality, because it would apply selectors
-    env.globals.update(
-        dict(
-            compiler=lambda x: x + "_compiler_stub",
-            pin_subpackage=lambda *args, **kwargs: "subpackage_stub",
-            pin_compatible=lambda *args, **kwargs: "compatible_pin_stub",
-            cdt=lambda *args, **kwargs: "cdt_stub",
-            load_file_regex=lambda *args, **kwargs: defaultdict(lambda: ""),
-            datetime=datetime,
-            time=time,
-            target_platform="linux-64",
-        )
-    )
-    mockos = MockOS()
-    content = env.from_string(text).render(os=mockos, environ=mockos.environ)
-    return content
-
-
 @contextmanager
 def update_conda_forge_config(feedstock_directory):
     """Utility method used to update conda forge configuration files
