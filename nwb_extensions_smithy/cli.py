@@ -76,7 +76,7 @@ class Init(Subcommand):
             "recipe_directory", help="The path to the source recipe directory."
         )
         scp.add_argument(
-            "--feedstock-directory",
+            "--feedstock_directory",
             default="./{package.name}-feedstock",
             help="Target directory, where the new feedstock git repository should be "
             "created. (Default: './<packagename>-feedstock')",
@@ -84,7 +84,7 @@ class Init(Subcommand):
 
     def __call__(self, args):
         # check some error conditions
-        if args.recipe_directory and not os.path.isdir(args.recipe_directory):
+        if not os.path.isdir(args.recipe_directory):
             raise IOError(
                 "The source recipe directory should be the directory of the "
                 "NWB Extension you want to build a feedstock for. Got {}".format(
@@ -94,10 +94,7 @@ class Init(Subcommand):
 
         # parse the ndx-meta.yaml file and use package/name for the name of the
         # feedstock directory
-        if args.recipe_directory:
-            meta = MetaData(args.recipe_directory)
-        else:
-            raise RuntimeError('Missing path to recipe')
+        meta = MetaData(args.recipe_directory)
 
         feedstock_directory = args.feedstock_directory.format(
             package=argparse.Namespace(name=meta.name())
@@ -110,7 +107,7 @@ class Init(Subcommand):
             os.makedirs(feedstock_directory)
         except FileExistsError:
             print(f'A feedstock directory with the name {feedstock_directory} '
-                               'already exists.')
+                  'already exists.')
             raise
         subprocess.check_call(["git", "init"], cwd=feedstock_directory)
         generate_feedstock_content(feedstock_directory, args.recipe_directory)
@@ -121,7 +118,7 @@ class Init(Subcommand):
         # TODO
         print(
             "\nRepository created, now call 'nwb-extensions-smithy register-github "
-            f"--feedstock-directory {feedstock_directory}'"
+            f"-add-teams {feedstock_directory}'"
         )
 
 
@@ -170,8 +167,8 @@ class RegisterGithub(Subcommand):
 
         github.create_github_repo(args)
         print(
-            "\nRepository registered at github, now call 'nwb-extensions-smithy register-ci "
-            f"--feedstock-directory {args.feedstock_directory}'"
+            "\nRepository registered at github, now call 'nwb-extensions-smithy "
+            f"register-ci --feedstock_directory {args.feedstock_directory}'"
         )
 
 
