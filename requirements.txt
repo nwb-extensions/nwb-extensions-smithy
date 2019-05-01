@@ -1,7 +1,4 @@
-# This list is duplicated in the conda_smithy.recipe/meta.yaml.
-
 setuptools
-conda
 conda-build >=3.1.2
 jinja2
 requests

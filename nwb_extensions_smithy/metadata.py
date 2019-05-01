@@ -15,7 +15,7 @@ FIELDS = {
     'src': {},
     'pip': {},
     'license': {},
-    'recipe-maintainers': {}
+    'maintainers': {}
 }
 
 

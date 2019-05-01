@@ -3,7 +3,6 @@ import glob
 import multiprocessing
 import os
 
-import git
 from git import Repo, GitCommandError
 from github import Github
 
@@ -195,7 +194,7 @@ def feedstocks_repos(
         random.shuffle(feedstocks)
 
     for feedstock in feedstocks:
-        repo = git.Repo(feedstock.directory)
+        repo = Repo(feedstock.directory)
         upstream = repo.remotes.upstream
 
         if pull_up_to_date:

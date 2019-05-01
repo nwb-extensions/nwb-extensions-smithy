@@ -7,7 +7,6 @@ import io
 
 from textwrap import dedent
 
-import conda
 from distutils.version import LooseVersion
 
 from . import configure_feedstock
@@ -21,15 +20,13 @@ from .metadata import MetaData
 
 def generate_feedstock_content(target_directory, source_recipe_dir):
     target_directory = os.path.abspath(target_directory)
-    recipe_dir = "recipe"
-    target_recipe_dir = os.path.join(target_directory, recipe_dir)
 
-    if not os.path.exists(target_recipe_dir):
-        os.makedirs(target_recipe_dir)
+    if not os.path.exists(target_directory):
+        os.makedirs(target_directory)
     # If there is a source recipe, copy it now to the right dir
     if source_recipe_dir:
         try:
-            configure_feedstock.copytree(source_recipe_dir, target_recipe_dir)
+            configure_feedstock.copytree(source_recipe_dir, target_directory)
         except Exception as e:
             raise type(e)(
                 str(e) + " while copying file %s" % source_recipe_dir
@@ -118,7 +115,7 @@ class Init(Subcommand):
         # TODO
         print(
             "\nRepository created, now call 'nwb-extensions-smithy register-github "
-            f"-add-teams {feedstock_directory}'"
+            f"--add-teams {feedstock_directory}'"
         )
 
 
@@ -421,15 +418,15 @@ def main():
 
     # Check conda version for compatibility
     # TODO
-    CONDA_VERSION_MAX = "4.7"
-    if LooseVersion(conda.__version__) >= LooseVersion(CONDA_VERSION_MAX):
-        print(
-            "You appear to be using conda {}, but nwb-extensions-smithy {}\n"
-            "is currently only compatible with conda versions < {}.\n".format(
-                conda.__version__, __version__, CONDA_VERSION_MAX
-            )
-        )
-        sys.exit(2)
+    #CONDA_VERSION_MAX = "4.7"
+    #if LooseVersion(conda.__version__) >= LooseVersion(CONDA_VERSION_MAX):
+    #    print(
+    #        "You appear to be using conda {}, but nwb-extensions-smithy {}\n"
+    #        "is currently only compatible with conda versions < {}.\n".format(
+    #            conda.__version__, __version__, CONDA_VERSION_MAX
+    #        )
+    #    )
+    #    sys.exit(2)
 
     args.subcommand_func(args)
 

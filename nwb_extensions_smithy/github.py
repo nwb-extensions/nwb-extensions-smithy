@@ -104,7 +104,7 @@ def get_cached_team(org, team_name, description=""):
 
 def create_github_repo(args):
     token = gh_token()
-    meta = MetaData(os.path.join(args.feedstock_directory, 'recipe'))
+    meta = MetaData(args.feedstock_directory)
     feedstock_name = meta.name()
 
     gh = Github(token)
@@ -197,14 +197,14 @@ def configure_github_team(meta, gh_repo, org, feedstock_name):
         "impressive",
         "unbeatable",
         "excellent",
-        "top",
+        "amazing",
         "outstanding",
         "exalted",
         "standout",
         "smashing",
     ]
 
-    maintainers = set(meta.meta.get("extra", {}).get("recipe-maintainers", []))
+    maintainers = set(meta.meta.get("maintainers", []))
     maintainers = set(maintainer.lower() for maintainer in maintainers)
     maintainer_teams = set(m for m in maintainers if "/" in m)
     maintainers = set(m for m in maintainers if "/" not in m)
@@ -218,12 +218,23 @@ def configure_github_team(meta, gh_repo, org, feedstock_name):
     )
     current_maintainers = set()
     if not team:
-        team = create_team(
-            org,
-            team_name,
-            "The {} {} contributors!".format(choice(superlative), team_name),
-        )
-        team.add_to_repos(gh_repo)
+        try:
+            team = create_team(
+                org,
+                team_name,
+                "The {} {} contributors!".format(choice(superlative), team_name),
+            )
+            team.add_to_repos(gh_repo)
+        except GithubException as gh_except:
+            if (
+                gh_except.data.get("errors", [{}])[0].get("message", "")
+                == u"Name has already been taken"
+            ):
+                raise RuntimeError(
+                    f"Team {team_name} already exists on organization {org.login}."
+                )
+            else:
+                raise
     else:
         current_maintainers = set(
             [e.login.lower() for e in team.get_members()]
@@ -237,6 +248,9 @@ def configure_github_team(meta, gh_repo, org, feedstock_name):
     # Add only the new maintainers to the team.
     # Also add the new maintainers to all-members if not already included.
     for new_maintainer in maintainers - current_maintainers:
+        print(
+            "Adding a new member ({}) to {}.".format(new_maintainer, team_name)
+        )
         add_membership(team, new_maintainer)
 
         if not has_in_members(all_members_team, new_maintainer):
