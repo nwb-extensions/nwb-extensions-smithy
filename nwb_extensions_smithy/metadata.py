@@ -10,17 +10,12 @@ from conda_build.license_family import ensure_valid_license_family
 
 # TODO specify these
 FIELDS = {
-    'package': {'name', 'version'},
-    'source': {'fn', 'url', 'md5', 'sha1', 'sha256', 'path',
-               'git_url', 'git_tag', 'git_branch', 'git_rev', 'git_depth',
-               },
-    'build': {},
-    'test': {},
-    'about': {'home', 'dev_url', 'doc_url', 'doc_source_url', 'license_url',  # these are URLs
-              'license', 'summary', 'description', 'license_family',  # text
-              'identifiers', 'tags', 'keywords',   # lists
-              'license_file', 'readme',   # paths in source tree
-              },
+    'name': {},
+    'version': {},
+    'src': {},
+    'pip': {},
+    'license': {},
+    'recipe-maintainers': {}
 }
 
 
@@ -39,13 +34,13 @@ class MetaData:
 
 
     def name(self):
-        res = self.meta.get('package', {}).get('name', '')
+        res = self.meta.get('name', '')
         if not res:
-            raise RuntimeError('package/name missing in: %r' % self.meta_path)
+            raise RuntimeError('name missing in: %r' % self.meta_path)
         res = str(res)
         if res != res.lower():
-            raise RuntimeError('package/name must be lowercase, got: %r' % res)
-        check_bad_chrs(res, 'package/name')
+            raise RuntimeError('name must be lowercase, got: %r' % res)
+        check_bad_chrs(res, 'name')
         return res
 
 
@@ -96,21 +91,21 @@ def load_stream(stream):
         # TODO make sure this works with different encodings...
         data = yaml.load(stream, Loader=yaml.Loader)
     except yaml.error.YAMLError as e:
-        raise RuntimeError(f'Cannot parse metadata in file {path}.')
+        raise RuntimeError(f'Cannot parse metadata from stream.')
     return clean(data)
 
 
 def clean(data):
     ''' Check a few things on the yaml file and sanitize the data '''
     if data is None:
-        raise RuntimeError(f'There is no data in file {path}.')
+        raise RuntimeError(f'There is no data in file/stream.')
     # ensure the known fields are dicts
-    for field in FIELDS:
-        if field not in data:
-            continue
-        if not isinstance(data[field], dict):
-            raise RuntimeError('The %s field should be a dict, not %s in file %s.' %
-                               (field, data[field].__class__.__name__, path))
+    # for field in FIELDS:
+    #     if field not in data:
+    #         continue
+    #     if not isinstance(data[field], dict):
+    #         raise RuntimeError('The %s field should be a dict, not %s.' %
+    #                            (field, data[field].__class__.__name__))
 
     ensure_valid_license_family(data)
     # clean git spec in source, and turns package/build version into string
