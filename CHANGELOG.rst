@@ -10,6 +10,97 @@ conda-smithy Change Log
 
 .. current developments
 
+v3.4.1
+====================
+
+**Added:**
+
+* license_file is required for GPL, MIT, BSD, APACHE, PSF
+
+**Changed:**
+
+* ``build-locally.py`` now uses ``python3`` even if ``python`` is ``python2`` (Python 3.6+ was already required)
+
+**Removed:**
+
+* Github issue, PR and contributing files are removed as they are in https://github.com/conda-forge/.github
+* Support for python 2 Removed
+
+**Fixed:**
+
+* Fix configuring appveyor on repos starting with an underscore
+* Fixed an issue where conda system variants could be used after rendering migrations.
+* Fixed issue where only the last maintainer is review requested
+* Unlicense is allowed
+* Support newer ``shyaml`` versions by checking whether ``shyaml -h`` succeeds.
+
+
+
+v3.4.0
+====================
+
+**Fixed:**
+
+* bumped conda version check in CLI to 5.0 (from 4.7)
+
+
+
+v3.3.7
+====================
+
+**Added:**
+
+* Added codeowners file
+
+**Fixed:**
+
+* Fixed checking in .pyc files
+
+
+
+v3.3.6
+====================
+
+**Fixed:**
+
+* Indentation error in ``github.py``
+
+
+
+v3.3.5
+====================
+
+**Added:**
+
+* Added native aarch64 support for builds using Drone.io. This can be enabled by
+  either using `provider: {linux_aarch64: drone}` or `provider: {linux_aarch64:
+  native}` in the conda-forge.yml.
+  
+  Currently, drone has to be enabled manually as there is no automatic CI
+  registration for repos.
+* export CI env variable with CI provider name
+* New ``build-locally.py`` script that is added to the root feedstock directory when
+  ``conda smithy rerender`` is run. This script runs conda build locally. Currently
+  it only fully supports running docker builds.
+* print when adding new team to maintiners of feedstock
+
+**Removed:**
+
+* `docker.image` in conda-forge.yml is removed
+* Removed the need for shyaml in CI env.
+
+**Fixed:**
+
+* removed empty lines causing current build status table to render as code
+* build setup script overriding is now supported on azure too
+
+
+
+v3.3.4
+====================
+
+
+
 v3.3.3
 ====================
 

@@ -17,6 +17,8 @@ from . import __version__
 from .metadata import MetaData
 
 
+if sys.version_info[0] == 2:
+    raise Exception("Conda-smithy does not support python 2!")
 
 def generate_feedstock_content(target_directory, source_recipe_dir):
     target_directory = os.path.abspath(target_directory)
@@ -49,7 +51,6 @@ class Subcommand(object):
         subcommand_parser = parser.add_parser(
             self.subcommand, help=help, aliases=self.aliases
         )
-
         subcommand_parser.set_defaults(subcommand_func=self)
         self.subcommand_parser = subcommand_parser
 
@@ -193,7 +194,7 @@ class RegisterCI(Subcommand):
             default="nwb-extensions-test",
             help="github organisation under which to register this repo",
         )
-        for ci in ["Azure", "Travis", "Circle", "Appveyor"]:
+        for ci in ["Azure", "Travis", "Circle", "Appveyor", "Drone"]:
             scp.add_argument(
                 "--without-{}".format(ci.lower()),
                 dest=ci.lower(),
@@ -403,7 +404,7 @@ def main():
     # https://reinout.vanrees.org/weblog/2010/01/06/zest-releaser-entry-points.html
     for subcommand in Subcommand.__subclasses__():
         subcommand(subparser)
-
+    # And the alias for rerender
     parser.add_argument(
         "--version",
         action="version",
@@ -418,15 +419,15 @@ def main():
 
     # Check conda version for compatibility
     # TODO
-    #CONDA_VERSION_MAX = "4.7"
-    #if LooseVersion(conda.__version__) >= LooseVersion(CONDA_VERSION_MAX):
-    #    print(
-    #        "You appear to be using conda {}, but nwb-extensions-smithy {}\n"
-    #        "is currently only compatible with conda versions < {}.\n".format(
-    #            conda.__version__, __version__, CONDA_VERSION_MAX
-    #        )
-    #    )
-    #    sys.exit(2)
+    # CONDA_VERSION_MAX = "5.0"
+    # if LooseVersion(conda.__version__) >= LooseVersion(CONDA_VERSION_MAX):
+    #     print(
+    #         "You appear to be using conda {}, but conda-smithy {}\n"
+    #         "is currently only compatible with conda versions < {}.\n".format(
+    #             conda.__version__, __version__, CONDA_VERSION_MAX
+    #         )
+    #     )
+    #     sys.exit(2)
 
     args.subcommand_func(args)
 

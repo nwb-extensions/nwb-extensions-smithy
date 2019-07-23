@@ -1,6 +1,7 @@
 import argparse
 import collections
 import os
+import pytest
 import subprocess
 import yaml
 import shutil
@@ -102,7 +103,7 @@ def test_regenerate(py_recipe, testing_workdir):
         feedstock_directory=dest_dir,
         commit=False,
         no_check_uptodate=True,
-        exclusive_config_file=os.path.join(recipe, "config.yaml"),
+        exclusive_config_file=os.path.join(recipe, "recipe", "default_config.yaml"),
         check=False
     )
 
@@ -116,7 +117,7 @@ def test_regenerate(py_recipe, testing_workdir):
         feedstock_directory=dest_dir,
         commit=False,
         no_check_uptodate=True,
-        exclusive_config_file=os.path.join(recipe, "short_config.yaml"),
+        exclusive_config_file=os.path.join(recipe, "recipe", "short_config.yaml"),
         check=False
     )
     regen_obj(args)
