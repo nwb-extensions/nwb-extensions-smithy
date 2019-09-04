@@ -1,17 +1,14 @@
 Overview
 --------
 
-`conda-smithy` is a tool for combining a conda recipe with configurations to build using freely hosted CI services into a single repository, also known as a feedstock.
-`conda-smithy` is still a work-in-progress, but when complete, `conda-smithy` will:
+`nwb-extensions-smithy` is a tool for combining an NWB extension with configurations to build using freely hosted CI services into a single repository, also known as a feedstock.
+`nwb-extensions-smithy` is still a work-in-progress, but when complete, `nwb-extensions-smithy` will:
 
-+ Create a git repo with a conda recipe and the files to run conda builds via CI
-  services.
-+ Register the repo on github and push it.
-+ Connect the repo to the CI services travis-ci.org, appveyor.com, circleci.com
++ Create a git repo with an NWB extension and the files to test the extension using CI services.
++ Register the repo on GitHub and push it.
++ Connect the repo to Circle CI and Azure Pipelines
 
-[![Build Status](https://travis-ci.org/conda-forge/conda-smithy.svg)](https://travis-ci.org/conda-forge/conda-smithy)
-[![Coverage Status](https://coveralls.io/repos/github/conda-forge/conda-smithy/badge.svg?branch=master)](https://coveralls.io/github/conda-forge/conda-smithy?branch=master)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+This code was adapted from [conda-smithy](https://github.com/conda-forge/conda-smithy).
 
 Installation
 ------------

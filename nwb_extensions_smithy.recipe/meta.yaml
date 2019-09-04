@@ -26,7 +26,7 @@ requirements:
     - requests
     - pycryptodome
     - gitpython
-    - pygithub <2
+    - pygithub
     - ruamel.yaml
     - conda-forge-pinning
     - vsts-python-api
@@ -47,7 +47,7 @@ test:
     - py.test tests
 
 about:
-  home: https://github.com/nwb-extensions-test/nwb-extensions-smithy
+  home: https://github.com/nwb-extensions/nwb-extensions-smithy
   license: BSD 3-clause
   license_family: BSD
   license_file: LICENSE.txt

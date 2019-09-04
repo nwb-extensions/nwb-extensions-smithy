@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from setuptools import setup, find_packages
+from setuptools import setup
 import versioneer
 
 
@@ -8,10 +8,10 @@ def main():
         name="nwb-extensions-smithy",
         version=versioneer.get_version(),
         description="A package to create extensions for NWB, and automate "
-        "their building with CI tools on Linux, OSX and Windows.",
+        "their building with CI tools on Linux, macOS, and Windows.",
         author="Ryan Ly",
         author_email="rly@lbl.gov",
-        url="https://github.com/nwb-extensions-test/nwb-extensions-smithy",
+        url="https://github.com/nwb-extensions/nwb-extensions-smithy",
         entry_points=dict(
             console_scripts=[
                 "feedstocks = nwb_extensions_smithy.feedstocks:main",

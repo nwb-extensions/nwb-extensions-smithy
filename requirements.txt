@@ -1,11 +1,11 @@
 setuptools
-conda-build >=3.1.2
+#conda-build >=3.1.2
 jinja2
 requests
 pycryptodome
 gitpython
-pygithub <2
+pygithub
 ruamel.yaml
 #conda-forge-pinning
-vsts-python-api
+#vsts-python-api
 toolz

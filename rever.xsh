@@ -1,7 +1,7 @@
 import os
 
 $PROJECT = $GITHUB_REPO = 'nwb-extensions-smithy'
-$GITHUB_ORG = 'nwb-extensions-test'
+$GITHUB_ORG = 'nwb-extensions'
 
 $ACTIVITIES = ['changelog', 'tag', 'push_tag', 'ghrelease']
 
@@ -16,5 +16,5 @@ def sdist_asset():
 
 $TAG_TEMPLATE = $GHRELEASE_NAME = 'v$VERSION'
 $GHRELEASE_ASSETS = [sdist_asset]
-$CONDA_FORGE_SOURCE_URL = ('https://github.com/nwb-extensions-test/nwb-extensions-smithy/releases/'
+$CONDA_FORGE_SOURCE_URL = ('https://github.com/nwb-extensions/nwb-extensions-smithy/releases/'
                            'download/v$VERSION/nwb-extensions-smithy-$VERSION.tar.gz')

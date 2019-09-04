@@ -1,6 +1,6 @@
-=======================
+================================
 nwb-extensions-smithy Change Log
-=======================
+================================
 
 Forked conda-smithy v3.3.3.
 
@@ -75,7 +75,7 @@ v3.3.5
 * Added native aarch64 support for builds using Drone.io. This can be enabled by
   either using `provider: {linux_aarch64: drone}` or `provider: {linux_aarch64:
   native}` in the conda-forge.yml.
-  
+
   Currently, drone has to be enabled manually as there is no automatic CI
   registration for repos.
 * export CI env variable with CI provider name
