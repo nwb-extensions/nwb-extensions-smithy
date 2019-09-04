@@ -3,14 +3,10 @@ import subprocess
 import sys
 import time
 import argparse
-import io
 
 from textwrap import dedent
 
-from distutils.version import LooseVersion
-
 from . import configure_feedstock
-from . import feedstock_io
 from . import lint_recipe
 from . import azure_ci_utils
 from . import __version__
@@ -19,6 +15,7 @@ from .metadata import MetaData
 
 if sys.version_info[0] == 2:
     raise Exception("Conda-smithy does not support python 2!")
+
 
 def generate_feedstock_content(target_directory, source_recipe_dir):
     target_directory = os.path.abspath(target_directory)
@@ -36,8 +33,8 @@ def generate_feedstock_content(target_directory, source_recipe_dir):
 
     # Create a conda-forge.yml file in the new recipe dir if it doesn't exist
     # TODO
-    #forge_yml = os.path.join(target_directory, "conda-forge.yml")
-    #if not os.path.exists(forge_yml):
+    # forge_yml = os.path.join(target_directory, "conda-forge.yml")
+    # if not os.path.exists(forge_yml):
     #    with feedstock_io.write_file(forge_yml) as fh:
     #        fh.write(u"[]")
 
@@ -145,7 +142,7 @@ class RegisterGithub(Subcommand):
         )
         group.add_argument(
             "--organization",
-            default="nwb-extensions-test",
+            default="nwb-extensions",
             help="github organisation under which to register this repo",
         )
         scp.add_argument(
@@ -191,7 +188,7 @@ class RegisterCI(Subcommand):
         )
         group.add_argument(
             "--organization",
-            default="nwb-extensions-test",
+            default="nwb-extensions",
             help="github organisation under which to register this repo",
         )
         for ci in ["Azure", "Travis", "Circle", "Appveyor", "Drone"]:
@@ -202,7 +199,7 @@ class RegisterCI(Subcommand):
                 help="If set, {} will be not registered".format(ci),
             )
             default = {ci.lower(): True}
-            default['azure'] = False # TODO disable azure for now
+            default['azure'] = False  # TODO disable azure for now
             scp.set_defaults(**default)
 
     def __call__(self, args):
@@ -214,9 +211,9 @@ class RegisterCI(Subcommand):
         print("CI Summary for {}/{} (can take ~30s):".format(owner, repo))
         if args.travis:
             ci_register.add_project_to_travis(owner, repo)
-            #ci_register.travis_token_update_conda_forge_config(
+            # ci_register.travis_token_update_conda_forge_config(
             #    args.feedstock_directory, owner, repo
-            #)
+            # )
             time.sleep(1)
             ci_register.travis_configure(owner, repo)
             ci_register.travis_cleanup(owner, repo)
@@ -224,7 +221,7 @@ class RegisterCI(Subcommand):
             print("Travis registration disabled.")
         if args.circle:
             ci_register.add_project_to_circle(owner, repo)
-            #ci_register.add_token_to_circle(owner, repo)
+            # ci_register.add_token_to_circle(owner, repo)
         else:
             print("Circle registration disabled.")
         if args.azure:
@@ -238,9 +235,9 @@ class RegisterCI(Subcommand):
             print("Azure registration disabled.")
         if args.appveyor:
             ci_register.add_project_to_appveyor(owner, repo)
-            #ci_register.appveyor_encrypt_binstar_token(
+            # ci_register.appveyor_encrypt_binstar_token(
             #    args.feedstock_directory, owner, repo
-            #)
+            # )
             ci_register.appveyor_configure(owner, repo)
         else:
             print("Appveyor registration disabled.")
@@ -291,7 +288,7 @@ class AddAzureBuildId(Subcommand):
         )
 
         build_info = azure_ci_utils.get_build_id(repo, config)
-        import ruamel.yaml
+        import ruamel.yaml  # noqa: F401
 
         from .utils import update_conda_forge_config
         with update_conda_forge_config(args.feedstock_directory) as config:
@@ -338,9 +335,9 @@ class Regenerate(Subcommand):
             + "For advanced usage only",
         )
         scp.add_argument("--check",
-            action="store_true",
-            default=False,
-            help="Check if regenerate can be performed")
+                         action="store_true",
+                         default=False,
+                         help="Check if regenerate can be performed")
 
     def __call__(self, args):
         configure_feedstock.main(

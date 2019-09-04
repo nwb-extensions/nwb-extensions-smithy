@@ -19,7 +19,7 @@ from vsts.vss_connection import VssConnection
 
 class AzureConfig:
 
-    _default_org = "nwb-extensions-test"
+    _default_org = "nwb-extensions"
     _default_project_name = "feedstock-builds"
 
     def __init__(self, org_or_user=None, project_name=None, team_instance=None):
@@ -184,9 +184,9 @@ def register_repo(github_org, repo_name, config: AzureConfig = default_config):
                 "triggerType": "continuousIntegration",
             },
         ],
-        #variable_groups=aclient.get_variable_groups(
+        # variable_groups=aclient.get_variable_groups(
         #    project=config.project_name, group_name="anaconda-org"
-        #),
+        # ),
         type="build",
     )
 

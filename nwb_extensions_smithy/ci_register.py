@@ -4,8 +4,6 @@ import requests
 import time
 import sys
 
-import ruamel.yaml
-
 from . import github
 from .utils import update_conda_forge_config
 
@@ -246,7 +244,7 @@ def travis_wait_until_synced(ignore=False):
         content = response.json()
         print(".", end="")
         sys.stdout.flush()
-        if "is_syncing" in content and content["is_syncing"] == False:
+        if "is_syncing" in content and content["is_syncing"] is False:
             break
         time.sleep(6)
     else:

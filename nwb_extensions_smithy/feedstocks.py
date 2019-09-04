@@ -251,7 +251,7 @@ def feedstocks_yaml(
                     blob = ref.commit.tree["recipe"]["ndx-meta.yaml"]
                     content = blob.data_stream.read().decode("utf-8")
                     yaml = load_stream(content)
-            except:
+            except Exception:
                 # Add a helpful comment so we know what we are working with and reraise.
                 print("Failed on {}".format(feedstock.package))
                 raise
@@ -272,14 +272,14 @@ def main():
     )
     list_feedstocks = subparsers.add_parser("list", help=list_feedstocks_help)
     list_feedstocks.set_defaults(func=feedstocks_list_handle_args)
-    list_feedstocks.add_argument("--organization", default="nwb-extensions-test")
+    list_feedstocks.add_argument("--organization", default="nwb-extensions")
 
     clone_feedstocks = subparsers.add_parser(
         "clone",
         help="Clone all of the feedstocks available on the GitHub organization.",
     )
     clone_feedstocks.set_defaults(func=feedstocks_clone_all_handle_args)
-    clone_feedstocks.add_argument("--organization", default="nwb-extensions-test")
+    clone_feedstocks.add_argument("--organization", default="nwb-extensions")
     clone_feedstocks.add_argument("--feedstocks-directory", default="./")
 
     list_cloned_feedstocks = subparsers.add_parser(

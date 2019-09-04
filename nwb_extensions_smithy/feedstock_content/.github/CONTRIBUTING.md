@@ -1,10 +1,10 @@
-Thanks for your interest in helping out nwb-extensions-test.
+Thanks for your interest in helping out nwb-extensions.
 
 Whether you are brand new or a seasoned maintainer, we always appreciate
 feedback from the community about how we can improve conda-forge. If you
 are submitting a PR or issue, please fill out the respective template. Should
 any questions arise please feel free to ask the maintainer team of the
-respective feedstock or reach out to `@nwb-extensions-test/core` for more complex
+respective feedstock or reach out to `@nwb-extensions/core` for more complex
 issues.
 
 In the case of any issues reported, please be sure to demonstrate the relevant

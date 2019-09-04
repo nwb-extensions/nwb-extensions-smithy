@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from collections.abc import Sequence, Mapping
-str_type = str
 
 import copy
 import io
@@ -10,14 +9,13 @@ import os
 import re
 
 import github
-import ruamel.yaml
 
 from conda_build.metadata import ensure_valid_license_family
 import conda_build.conda_interface
 
 from .metadata import MetaData, FIELDS as ndxfields
 
-
+str_type = str
 FIELDS = copy.deepcopy(ndxfields)
 
 # Just in case 'extra' moves into conda_build
@@ -281,7 +279,7 @@ def lintify(meta, recipe_dir=None, conda_forge=False):
 
     # 13: Check that the recipe name is valid
     recipe_name = package_section.get("name", "").strip()
-    if re.match("^[a-z0-9_\-.]+$", recipe_name) is None:
+    if re.match(r"^[a-z0-9_\-.]+$", recipe_name) is None:
         lints.append(
             "Recipe name has invalid characters. only lowercase alpha, numeric, "
             "underscores, hyphens and dots allowed"
@@ -359,7 +357,7 @@ def lintify(meta, recipe_dir=None, conda_forge=False):
         ver = str(package_section.get("version"))
         try:
             conda_build.conda_interface.VersionOrder(ver)
-        except:
+        except Exception:
             lints.append(
                 "Package version {} doesn't match conda spec".format(ver)
             )
@@ -444,28 +442,17 @@ def run_conda_forge_specific(meta, recipe_dir, lints, hints):
     recipe_name = package_section.get("name", "").strip()
     is_staged_recipes = recipe_dirname != "recipe"
 
-    # 1: Check that the recipe does not exist in cnwb-extensions-test or bioconda
+    # 1: Check that the recipe does not exist in nwb-extensions
     if is_staged_recipes and recipe_name:
-        cf = gh.get_user(os.getenv("GH_ORG", "nwb-extensions-test"))
+        cf = gh.get_user(os.getenv("GH_ORG", "nwb-extensions"))
         try:
             cf.get_repo("{}-feedstock".format(recipe_name))
             feedstock_exists = True
-        except github.UnknownObjectException as e:
+        except github.UnknownObjectException:
             feedstock_exists = False
 
         if feedstock_exists:
-            lints.append("Feedstock with the same name exists in nwb-extensions-test")
-
-        bio = gh.get_user("bioconda").get_repo("bioconda-recipes")
-        try:
-            bio.get_dir_contents("recipes/{}".format(recipe_name))
-        except github.UnknownObjectException as e:
-            pass
-        else:
-            hints.append(
-                "Recipe with the same name exists in bioconda: "
-                "please discuss with @conda-forge/bioconda-recipes."
-            )
+            lints.append("Feedstock with the same name exists in nwb-extensions")
 
     # 2: Check that the recipe maintainers exists:
     maintainers = extra_section.get("recipe-maintainers", [])
@@ -475,7 +462,7 @@ def run_conda_forge_specific(meta, recipe_dir, lints, hints):
             continue
         try:
             gh.get_user(maintainer)
-        except github.UnknownObjectException as e:
+        except github.UnknownObjectException:
             lints.append(
                 'Recipe maintainer "{}" does not exist'.format(maintainer)
             )

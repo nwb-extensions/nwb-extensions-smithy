@@ -67,7 +67,7 @@ def _version_order(
     else:
         try:
             return VersionOrder(v)
-        except:
+        except Exception:
             return v
 
 

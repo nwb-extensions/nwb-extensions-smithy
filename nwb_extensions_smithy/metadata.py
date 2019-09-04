@@ -3,7 +3,7 @@ import glob
 import ruamel.yaml as yaml
 from warnings import warn
 
-from conda_build.metadata import stringify_numbers, sanitize, check_bad_chrs
+from conda_build.metadata import sanitize, check_bad_chrs
 from conda_build.license_family import ensure_valid_license_family
 
 # Adapted from conda_build.metadata.py
@@ -32,7 +32,6 @@ class MetaData:
         if self.meta_path:
             self.meta = load_file(self.meta_path)
 
-
     def name(self):
         res = self.meta.get('name', '')
         if not res:
@@ -44,7 +43,6 @@ class MetaData:
         return res
 
 
-
 def find_metadata(path):
     '''
     Recurse through a folder, locating ndx-meta.yaml, and returns path to file.
@@ -52,7 +50,7 @@ def find_metadata(path):
     found, and then uses the base level file.
     Raises error if more than one is found and none are in the base directory.
     '''
-    meta_name = 'ndx-meta.yaml';
+    meta_name = 'ndx-meta.yaml'
     if os.path.isfile(path) and os.path.basename(path) == meta_name:
         return os.path.dirname(path)
 
@@ -79,7 +77,7 @@ def load_file(path):
         try:
             # TODO make sure this works with different encodings...
             data = yaml.load(f.read(), Loader=yaml.Loader)
-        except yaml.error.YAMLError as e:
+        except yaml.error.YAMLError:
             raise RuntimeError(f'Cannot parse metadata in file {path}.')
     return clean(data)
 
@@ -90,7 +88,7 @@ def load_stream(stream):
     try:
         # TODO make sure this works with different encodings...
         data = yaml.load(stream, Loader=yaml.Loader)
-    except yaml.error.YAMLError as e:
+    except yaml.error.YAMLError:
         raise RuntimeError(f'Cannot parse metadata from stream.')
     return clean(data)
 

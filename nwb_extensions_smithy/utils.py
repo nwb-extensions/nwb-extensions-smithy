@@ -1,9 +1,6 @@
 import shutil
 import tempfile
 import jinja2
-import six
-import datetime
-import time
 import os
 from collections import defaultdict
 from contextlib import contextmanager
