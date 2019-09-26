@@ -14,7 +14,7 @@ from .metadata import MetaData
 
 
 if sys.version_info[0] == 2:
-    raise Exception("Conda-smithy does not support python 2!")
+    raise Exception("nwb-extensions-smithy does not support Python 2!")
 
 
 def generate_feedstock_content(target_directory, source_recipe_dir):
@@ -30,13 +30,6 @@ def generate_feedstock_content(target_directory, source_recipe_dir):
             raise type(e)(
                 str(e) + " while copying file %s" % source_recipe_dir
             ).with_traceback(sys.exc_info()[2])
-
-    # Create a conda-forge.yml file in the new recipe dir if it doesn't exist
-    # TODO
-    # forge_yml = os.path.join(target_directory, "conda-forge.yml")
-    # if not os.path.exists(forge_yml):
-    #    with feedstock_io.write_file(forge_yml) as fh:
-    #        fh.write(u"[]")
 
 
 class Subcommand(object):
@@ -63,8 +56,7 @@ class Init(Subcommand):
 
         super(Init, self).__init__(
             parser,
-            "Create a feedstock git repository, which can contain "
-            "one NWB extension recipe.",
+            "Create a feedstock git repository, which contains a single NWB extension catalog entry.",
         )
         scp = self.subcommand_parser
         scp.add_argument(
@@ -94,26 +86,20 @@ class Init(Subcommand):
         feedstock_directory = args.feedstock_directory.format(
             package=argparse.Namespace(name=meta.name())
         )
-        msg = "Initial feedstock commit with nwb-extensions-smithy {}.".format(
-            __version__
-        )
+        msg = "Initial feedstock commit with nwb-extensions-smithy {}.".format(__version__)
 
         try:
             os.makedirs(feedstock_directory)
         except FileExistsError:
-            print(f'A feedstock directory with the name {feedstock_directory} '
-                  'already exists.')
+            print(f'A feedstock directory with the name {feedstock_directory} already exists.')
             raise
         subprocess.check_call(["git", "init"], cwd=feedstock_directory)
         generate_feedstock_content(feedstock_directory, args.recipe_directory)
-        subprocess.check_call(
-            ["git", "commit", "-m", msg], cwd=feedstock_directory
-        )
+        subprocess.check_call(["git", "commit", "-m", msg], cwd=feedstock_directory)
 
         # TODO
         print(
-            "\nRepository created, now call 'nwb-extensions-smithy register-github "
-            f"--add-teams {feedstock_directory}'"
+            f"\nRepository created, now call 'nwb-extensions-smithy register-github --add-teams {feedstock_directory}'"
         )
 
 
@@ -209,19 +195,8 @@ class RegisterCI(Subcommand):
         repo = os.path.basename(os.path.abspath(args.feedstock_directory))
 
         print("CI Summary for {}/{} (can take ~30s):".format(owner, repo))
-        if args.travis:
-            ci_register.add_project_to_travis(owner, repo)
-            # ci_register.travis_token_update_conda_forge_config(
-            #    args.feedstock_directory, owner, repo
-            # )
-            time.sleep(1)
-            ci_register.travis_configure(owner, repo)
-            ci_register.travis_cleanup(owner, repo)
-        else:
-            print("Travis registration disabled.")
         if args.circle:
             ci_register.add_project_to_circle(owner, repo)
-            # ci_register.add_token_to_circle(owner, repo)
         else:
             print("Circle registration disabled.")
         if args.azure:
@@ -233,14 +208,6 @@ class RegisterCI(Subcommand):
             ci_register.add_project_to_azure(owner, repo)
         else:
             print("Azure registration disabled.")
-        if args.appveyor:
-            ci_register.add_project_to_appveyor(owner, repo)
-            # ci_register.appveyor_encrypt_binstar_token(
-            #    args.feedstock_directory, owner, repo
-            # )
-            ci_register.appveyor_configure(owner, repo)
-        else:
-            print("Appveyor registration disabled.")
         ci_register.add_conda_forge_webservice_hooks(owner, repo)
         print(
             "\nCI services have been enabled. You may wish to regenerate the feedstock.\n"
@@ -413,18 +380,6 @@ def main():
         args = parser.parse_args(["--help"])
     else:
         args = parser.parse_args()
-
-    # Check conda version for compatibility
-    # TODO
-    # CONDA_VERSION_MAX = "5.0"
-    # if LooseVersion(conda.__version__) >= LooseVersion(CONDA_VERSION_MAX):
-    #     print(
-    #         "You appear to be using conda {}, but conda-smithy {}\n"
-    #         "is currently only compatible with conda versions < {}.\n".format(
-    #             conda.__version__, __version__, CONDA_VERSION_MAX
-    #         )
-    #     )
-    #     sys.exit(2)
 
     args.subcommand_func(args)
 

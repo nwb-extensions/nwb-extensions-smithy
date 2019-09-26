@@ -59,8 +59,7 @@ def find_metadata(path):
     if len(results) > 1:
         base_recipe = os.path.join(path, meta_name)
         if base_recipe in results:
-            warn(f'Multiple {meta_name} files found. '
-                 f'The {meta_name} file in the base directory will be used.')
+            warn(f'Multiple {meta_name} files found. The {meta_name} file in the base directory will be used.')
             results = [base_recipe]
         else:
             raise IOError(f'No {meta_name} found in base directory, and '

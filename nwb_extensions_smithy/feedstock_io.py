@@ -84,8 +84,7 @@ def remove_file(filename):
 
 def copy_file(src, dst):
     """
-    Tried to copy utf-8 text files line-by-line to avoid
-    getting CRLF characters added on Windows.
+    Try to copy utf-8 text files line-by-line to avoid getting CRLF characters added on Windows.
 
     If the file fails to be decoded with utf-8, we revert to a regular copy.
     """

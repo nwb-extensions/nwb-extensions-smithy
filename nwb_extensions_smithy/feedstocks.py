@@ -266,8 +266,7 @@ def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers()
     list_feedstocks_help = (
-        "List all of the feedstocks available on the "
-        "GitHub organization. Specify the GitHub "
+        "List all of the feedstocks available on the GitHub organization. Specify the GitHub "
         "organization with the `--organization` flag."
     )
     list_feedstocks = subparsers.add_parser("list", help=list_feedstocks_help)
