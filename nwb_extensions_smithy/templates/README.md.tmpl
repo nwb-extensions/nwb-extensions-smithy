@@ -18,7 +18,6 @@ Summary: {{ package.meta.about.summary }}
 
 Current build status
 ====================
-{%- set appveyor_url_name = github.repo_name.replace('_', '-').replace('.', '-') %}
 {%- set shield = "https://img.shields.io/" %}
 {#  Due to github's markdown rendering within tables being a bit shaky, we have to fall back to an HTML table here since we wish
   to use a <details> tag.  Markdown rendering within html tables is weird and only works if you make EVERYTHING a paragraph which
@@ -64,36 +63,6 @@ Current build status
     <td>
       <a href="https://circleci.com/gh/{{ github.user_or_org }}/{{ github.repo_name }}">
         <img alt="{{ circle.platforms }}" src="{{ shield }}circleci/project/github/{{ github.user_or_org }}/{{ github.repo_name }}/{{ github.branch_name }}.svg?label={{ circle.platforms }}">
-      </a>
-    </td>
-  </tr>
-  {%- endif -%}
-  {%- if travis.enabled -%}
-  <tr>
-    <td>Travis</td>
-    <td>
-      <a href="https://travis-ci.org/{{ github.user_or_org }}/{{ github.repo_name }}">
-        <img alt="macOS" src="{{ shield }}travis/{{ github.user_or_org }}/{{ github.repo_name }}/{{ github.branch_name }}.svg?label=macOS">
-      </a>
-    </td>
-  </tr>
-  {%- endif -%}
-  {%- if drone.enabled -%}
-  <tr>
-    <td>Drone</td>
-    <td>
-      <a href="https://cloud.drone.io/{{ github.user_or_org }}/{{ github.repo_name }}">
-        <img alt="linux" src="{{ shield }}drone/build/{{ github.user_or_org }}/{{ github.branch_name }}.svg?label=Linux">
-      </a>
-    </td>
-  </tr>
-  {%- endif -%}
-  {%- if appveyor.enabled -%}
-  <tr>
-    <td>Appveyor</td>
-    <td>
-      <a href="https://ci.appveyor.com/project/{{ github.user_or_org }}/{{ appveyor_url_name }}/branch/{{ github.branch_name }}">
-        <img alt="windows" src="{{ shield }}appveyor/ci/{{ github.user_or_org }}/{{ appveyor_url_name }}/{{ github.branch_name }}.svg?label=Windows">
       </a>
     </td>
   </tr>
