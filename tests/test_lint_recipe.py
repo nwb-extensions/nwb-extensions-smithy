@@ -817,6 +817,39 @@ class Test_linter(unittest.TestCase):
         ).format(type(url).__module__, type(url).__name__)
         self.assertIn(msg, lints)
 
+    def test_single_space_pins(self):
+        meta = {
+            "requirements": {
+                "build": [
+                    "{{ compilers('c') }}",
+                    "python >=3",
+                    "pip   19",
+                ],
+                "host": [
+                    "python >= 2",
+                    "libcblas 3.8.* *netlib",
+                ],
+                "run": [
+                    "xonsh>1.0",
+                    "conda= 4.*",
+                    "conda-smithy<=54.*",
+                ],
+            }
+        }
+        lints, hints = linter.lintify(meta)
+        filtered_lints = [lint for lint in lints if lint.startswith("``requirements: ")]
+        expected_messages = [
+            "``requirements: host: python >= 2`` should not contain a space between "
+            "relational operator and the version, i.e. ``python >=2``",
+            "``requirements: run: xonsh>1.0`` must contain a space between the "
+            "name and the pin, i.e. ``xonsh >1.0``",
+            "``requirements: run: conda= 4.*`` must contain a space between the "
+            "name and the pin, i.e. ``conda =4.*``",
+            "``requirements: run: conda-smithy<=54.*`` must contain a space "
+            "between the name and the pin, i.e. ``conda-smithy <=54.*``",
+        ]
+        self.assertEqual(expected_messages, filtered_lints)
+
 
 @pytest.mark.cli
 class TestCLI_recipe_lint(unittest.TestCase):

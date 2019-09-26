@@ -11,7 +11,7 @@ from . import github as smithy_github
 from .metadata import load_file, load_stream
 
 
-def feedstock_repos(gh_organization):
+def feedstock_repos(gh_organization='nwb-extensions'):
     token = smithy_github.gh_token()
     gh = Github(token)
     org = gh.get_organization(gh_organization)

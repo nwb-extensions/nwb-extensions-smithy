@@ -1,7 +1,7 @@
 import os.path
 import glob
-import ruamel.yaml as yaml
 from warnings import warn
+from .utils import render_meta_yaml, yaml
 
 from conda_build.metadata import sanitize, check_bad_chrs
 from conda_build.license_family import ensure_valid_license_family
@@ -75,7 +75,9 @@ def load_file(path):
     with open(path, 'r') as f:
         try:
             # TODO make sure this works with different encodings...
-            data = yaml.load(f.read(), Loader=yaml.Loader)
+            content = render_meta_yaml("".join(f))
+            data = yaml.load(content, Loader=yaml.Loader)
+            # data = yaml.load(f.read(), Loader=yaml.Loader)
         except yaml.error.YAMLError:
             raise RuntimeError(f'Cannot parse metadata in file {path}.')
     return clean(data)

@@ -344,8 +344,8 @@ def _collapse_subpackage_variants(list_of_metas, root_path):
     _trim_unused_zip_keys(used_key_values)
     _trim_unused_pin_run_as_build(used_key_values)
 
-    print("top_level_loop_vars", top_level_loop_vars)
-    print("used_key_values", used_key_values)
+    logger.debug("top_level_loop_vars {}".format(top_level_loop_vars))
+    logger.debug("used_key_values {}".format(used_key_values))
 
     return (
         break_up_top_level_values(top_level_loop_vars, used_key_values),
@@ -476,7 +476,7 @@ def migrate_combined_spec(combined_spec, forge_dir, config):
 
     """
     combined_spec = combined_spec.copy()
-    migrations_root = os.path.join(forge_dir, "migrations", "*.yaml")
+    migrations_root = os.path.join(forge_dir, ".ci_support", "migrations", "*.yaml")
     migrations = glob.glob(migrations_root)
 
     from .variant_algebra import parse_variant, variant_add
@@ -486,7 +486,7 @@ def migrate_combined_spec(combined_spec, forge_dir, config):
     ]
     migration_variants.sort(key=lambda fn_v: (fn_v[1]["migration_ts"], fn_v[0]))
     if len(migration_variants):
-        print(f"Applying migrations: {','.join(k for k, v in migration_variants)}")
+        logger.info(f"Applying migrations: {','.join(k for k, v in migration_variants)}")
 
     for migrator_file, migration in migration_variants:
         if 'migration_ts' in migration:
@@ -907,6 +907,11 @@ def _travis_specific_setup(jinja_env, forge_config, forge_dir, platform):
     }
     template_files = platform_templates.get(platform, [])
 
+    if platform == "linux":
+        yum_build_setup = generate_yum_requirements(forge_dir)
+        if yum_build_setup:
+            forge_config['yum_build_setup'] = yum_build_setup
+
     _render_template_exe_files(
         forge_config=forge_config,
         target_dir=os.path.join(forge_dir, ".travis"),
@@ -1124,6 +1129,9 @@ def render_drone(jinja_env, forge_config, forge_dir):
     )
 
 def render_README(jinja_env, forge_config, forge_dir):
+    if "README.md" in forge_config["skip_render"]:
+        logger.info("README.md rendering is skipped")
+        return
     # we only care about the first metadata object for sake of readme
     metas = conda_build.api.render(
         os.path.join(forge_dir, "recipe"),
@@ -1175,13 +1183,14 @@ def render_README(jinja_env, forge_config, forge_dir):
                     project_name=forge_config["azure"]["project_name"],
                     repo=forge_config["github"]["repo_name"]
                 ))
+            resp.raise_for_status()
             build_def = resp.json()["value"][0]
             forge_config['azure']['build_id'] = build_def['id']
         except (IndexError, IOError):
             pass
 
-    print("README")
-    print(yaml.dump(forge_config))
+    logger.debug("README")
+    logger.debug(yaml.dump(forge_config))
 
     with write_file(target_fname) as fh:
         fh.write(template.render(**forge_config))
@@ -1195,9 +1204,13 @@ def render_README(jinja_env, forge_config, forge_dir):
             fh.write(line)
 
 
-def copy_feedstock_content(forge_dir):
+def copy_feedstock_content(forge_config, forge_dir):
     feedstock_content = os.path.join(conda_forge_content, "feedstock_content")
-    copytree(feedstock_content, forge_dir, ("README", "__pycache__"))
+    skip_files = ["README", "__pycache__"]
+    for f in forge_config["skip_render"]:
+        skip_files.append(f)
+        logger.info("%s rendering is skipped" % f)
+    copytree(feedstock_content, forge_dir, skip_files)
 
 
 def _load_forge_config(forge_dir, exclusive_config_file):
@@ -1258,6 +1271,7 @@ def _load_forge_config(forge_dir, exclusive_config_file):
             "branch_name": "master",
         },
         "recipe_dir": "recipe",
+        "skip_render": []
     }
 
     # An older conda-smithy used to have some files which should no longer exist,
@@ -1318,20 +1332,20 @@ def _load_forge_config(forge_dir, exclusive_config_file):
     config["azure"].setdefault("user_or_org", config["github"]["user_or_org"])
 
     log = yaml.safe_dump(config)
-    print("## CONFIGURATION USED\n")
-    print(log)
-    print("## END CONFIGURATION\n")
+    logger.debug("## CONFIGURATION USED\n")
+    logger.debug(log)
+    logger.debug("## END CONFIGURATION\n")
 
-    for platform in ["linux_aarch64", "linux_armv7l"]:
-        if config["provider"][platform] == "default":
-            config["provider"][platform] = "azure"
-
-    # TODO: Switch default to Drone
-    if config["provider"]["linux_aarch64"] in {"native"}:
+    if config["provider"]["linux_aarch64"] in {"default", "native"}:
         config["provider"]["linux_aarch64"] = "drone"
 
-    if config["provider"]["linux_ppc64le"] in {"native", "default"}:
+    if config["provider"]["linux_ppc64le"] in {"default", "native"}:
         config["provider"]["linux_ppc64le"] = "travis"
+
+    # Fallback handling set to azure, for platforms that are not fully specified by this time
+    for platform in config["provider"]:
+        if config["provider"][platform] in {"default", "emulated"}:
+            config["provider"][platform] = "azure"
 
     # Set the environment variable for the compiler stack
     os.environ["CF_COMPILER_STACK"] = config["compiler_stack"]
@@ -1370,7 +1384,7 @@ def check_version_uptodate(resolve, name, installed_version, error_on_warn):
     if error_on_warn:
         raise RuntimeError("{} Exiting.".format(msg))
     else:
-        print(msg)
+        logger.info(msg)
 
 
 def commit_changes(forge_file_directory, commit, cs_ver, cfp_ver, cb_ver):
@@ -1382,7 +1396,7 @@ def commit_changes(forge_file_directory, commit, cs_ver, cfp_ver, cb_ver):
         msg = "Re-rendered with conda-build {} and conda-smithy {}".format(
             cb_ver, cs_ver
         )
-    print(msg)
+    logger.info(msg)
 
     is_git_repo = os.path.exists(os.path.join(forge_file_directory, ".git"))
     if is_git_repo:
@@ -1396,15 +1410,15 @@ def commit_changes(forge_file_directory, commit, cs_ver, cfp_ver, cb_ver):
                 if commit == "edit":
                     git_args += ["--edit", "--status", "--verbose"]
                 subprocess.check_call(git_args, cwd=forge_file_directory)
-                print("")
+                logger.info("")
             else:
-                print(
+                logger.info(
                     "You can commit the changes with:\n\n"
                     '    git commit -m "MNT: {}"\n'.format(msg)
                 )
-            print("These changes need to be pushed to github!\n")
+            logger.info("These changes need to be pushed to github!\n")
         else:
-            print("No changes made. This feedstock is up-to-date.\n")
+            logger.info("No changes made. This feedstock is up-to-date.\n")
 
 
 def get_cfp_file_path(resolve=None, error_on_warn=True):
@@ -1441,7 +1455,7 @@ def clear_variants(forge_dir):
     if os.path.isdir(os.path.join(forge_dir, ".ci_support")):
         configs = glob.glob(
             os.path.join(
-                forge_dir, ".ci_support", "*")
+                forge_dir, ".ci_support", "*.yaml")
         )
         for config in configs:
             remove_file(config)
@@ -1450,6 +1464,10 @@ def clear_variants(forge_dir):
 def main(
     forge_file_directory, no_check_uptodate=False, commit=False, exclusive_config_file=None, check=False
 ):
+    import logging
+    loglevel = os.environ.get('CONDA_SMITHY_LOGLEVEL', 'INFO').upper()
+    logger.setLevel(loglevel)
+
     if check:
         index = conda_build.conda_interface.get_index(channel_urls=["conda-forge"])
         r = conda_build.conda_interface.Resolve(index)
@@ -1499,7 +1517,7 @@ def main(
         ),
     )
 
-    copy_feedstock_content(forge_dir)
+    copy_feedstock_content(config, forge_dir)
     set_exe_file(os.path.join(forge_dir, "build-locally.py"))
     clear_variants(forge_dir)
 

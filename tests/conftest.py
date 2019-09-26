@@ -46,7 +46,6 @@ def testing_workdir(tmpdir, request):
 def config_yaml(testing_workdir):
     config = {"python": ["2.7", "3.5"], "r_base": ["3.3.2", "3.4.2"]}
     os.makedirs(os.path.join(testing_workdir, "recipe"))
-    os.makedirs(os.path.join(testing_workdir, "migrations"))
     with open(os.path.join(testing_workdir, "config.yaml"), "w") as f:
         f.write("docker:\n")
         f.write("  fallback_image:\n")
@@ -80,6 +79,9 @@ def config_yaml(testing_workdir):
         yaml.dump(config, f, default_flow_style=False)
     with open(os.path.join(testing_workdir, "recipe", "long_config.yaml"), "w") as f:
         config = {"python": ["2.7", "3.5", "3.6"]}
+        yaml.dump(config, f, default_flow_style=False)
+    with open(os.path.join(testing_workdir, "conda-forge.yml"), "w") as f:
+        config = {"upload_on_branch": "foo-branch"}
         yaml.dump(config, f, default_flow_style=False)
     return testing_workdir
 
@@ -165,6 +167,34 @@ about:
 
 
 @pytest.fixture(scope="function")
+def upload_on_branch_recipe(config_yaml, request):
+    with open(os.path.join(config_yaml, "recipe", "meta.yaml"), "w") as fh:
+        fh.write(
+            """
+package:
+    name: py-test
+    version: 1.0.0
+requirements:
+    build:                      # [win]
+        - {{ compiler('c') }}   # [win]
+    host:
+        - python
+    run:
+        - python
+about:
+    home: home
+    """
+        )
+    return RecipeConfigPair(
+        str(config_yaml),
+        _load_forge_config(
+            config_yaml, exclusive_config_file=os.path.join(
+                config_yaml, "conda-forge.yml")
+        ),
+    )
+
+
+@pytest.fixture(scope="function")
 def recipe_migration_cfep9(config_yaml, request):
     # write a migrator
     with open(os.path.join(config_yaml, "recipe", "meta.yaml"), "w") as fh:
@@ -184,7 +214,8 @@ about:
     """
         )
 
-    with open(os.path.join(config_yaml, "migrations", "zlib.yaml"), "w") as fh:
+    os.makedirs(os.path.join(config_yaml, ".ci_support", "migrations"), exist_ok=True)
+    with open(os.path.join(config_yaml, ".ci_support", "migrations", "zlib.yaml"), "w") as fh:
         fh.write("""
 zlib:
     - 1000
@@ -203,7 +234,8 @@ zlib:
 def recipe_migration_cfep9_downgrade(config_yaml, recipe_migration_cfep9):
     # write a downgrade migrator that lives next to the current migrator.
     # Only this, more recent migrator should apply.
-    with open(os.path.join(config_yaml, "migrations", "zlib-downgrade.yaml"), "w") as fh:
+    os.makedirs(os.path.join(config_yaml, ".ci_support", "migrations"), exist_ok=True)
+    with open(os.path.join(config_yaml, ".ci_support", "migrations", "zlib-downgrade.yaml"), "w") as fh:
         fh.write("""
 migration_ts: 1.0
 zlib:
@@ -220,7 +252,8 @@ zlib:
 
 @pytest.fixture(scope="function")
 def recipe_migration_win_compiled(config_yaml, py_recipe):
-    with open(os.path.join(config_yaml, "migrations", "vc-migrate.yaml"), "w") as fh:
+    os.makedirs(os.path.join(config_yaml, ".ci_support", "migrations"), exist_ok=True)
+    with open(os.path.join(config_yaml, ".ci_support", "migrations", "vc-migrate.yaml"), "w") as fh:
         fh.write(dedent("""
         migration_ts: 1.0
         c_compiler:    # [win]
@@ -318,6 +351,42 @@ requirements:
         - zlib
 about:
     home: home
+    """
+        )
+    return RecipeConfigPair(
+        str(config_yaml),
+        _load_forge_config(
+            config_yaml, exclusive_config_file=os.path.join(
+                config_yaml, "recipe", "default_config.yaml")
+        ),
+    )
+
+
+@pytest.fixture(scope="function")
+def render_skipped_recipe(config_yaml, request):
+    with open(os.path.join(config_yaml, "recipe", "meta.yaml"), "w") as fh:
+        fh.write(
+            """
+package:
+    name: python-noarch-test
+    version: 1.0.0
+build:
+    noarch: python
+requirements:
+    build:
+        - python
+    run:
+        - python
+    """
+        )
+    with open(os.path.join(config_yaml, "conda-forge.yml"), "a+") as fh:
+        fh.write(
+            """
+skip_render:
+    - .gitignore
+    - .gitattributes
+    - README.md
+    - LICENSE.txt
     """
         )
     return RecipeConfigPair(

@@ -96,6 +96,96 @@ def test_ordering():
     # raise Exception()
 
 
+def test_no_ordering():
+    start = parse_variant(
+        dedent(
+            """\
+    xyz:
+        - 1
+    """
+        )
+    )
+
+    mig_compiler = parse_variant(
+        dedent(
+            """\
+    __migrator:
+        kind:
+            version
+        migration_no:
+            1
+    xyz:
+        - 2
+    """
+        )
+    )
+
+    res = variant_add(start, mig_compiler)
+    assert res["xyz"] == ["2"]
+    print(res)
+    # raise Exception()
+
+
+def test_ordering_downgrade():
+    start = parse_variant(
+        dedent(
+            """\
+    jpeg:
+        - 3.0
+    """
+        )
+    )
+
+    mig_compiler = parse_variant(
+        dedent(
+            """\
+    __migrator:
+        ordering:
+            jpeg:
+                - 3.0
+                - 2.0
+    jpeg:
+        - 2.0
+    """
+        )
+    )
+
+    res = variant_add(start, mig_compiler)
+    assert res["jpeg"] == ['2.0']
+    print(res)
+
+
+def test_new_pinned_package():
+    start = parse_variant(
+        dedent(
+            """\
+    pin_run_as_build:
+        jpeg:
+            max_pin: x
+    jpeg:
+        - 3.0
+    """
+        )
+    )
+
+    mig_compiler = parse_variant(
+        dedent(
+            """\
+    pin_run_as_build:
+        gprc-cpp:
+            max_pin: x.x
+    gprc-cpp:
+        - 1.23
+    """
+        )
+    )
+
+    res = variant_add(start, mig_compiler)
+    assert res["gprc-cpp"] == ['1.23']
+    assert res['pin_run_as_build']["gprc-cpp"]['max_pin'] == 'x.x'
+    print(res)
+
+
 def test_zip_keys():
     start = parse_variant(
         dedent(

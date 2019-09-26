@@ -186,6 +186,45 @@ def test_py_matrix_on_azure(py_recipe, jinja_env):
     assert len(os.listdir(matrix_dir)) == 8
 
 
+def test_upload_on_branch_azure(upload_on_branch_recipe, jinja_env):
+    cnfgr_fdstk.render_azure(
+        jinja_env=jinja_env, forge_config=upload_on_branch_recipe.config, forge_dir=upload_on_branch_recipe.recipe
+    )
+    # Check that the parameter is in the configuration.
+    assert 'upload_on_branch' in upload_on_branch_recipe.config
+    assert upload_on_branch_recipe.config['upload_on_branch'] == 'foo-branch'
+    # Check that the parameter is in the generated file.
+    with open(os.path.join(upload_on_branch_recipe.recipe, '.azure-pipelines', 'azure-pipelines-osx.yml')) as fp:
+        content_osx = yaml.load(fp)
+    assert 'UPLOAD_ON_BRANCH="foo-branch"' in content_osx['jobs'][0]['steps'][-1]['script']
+    assert 'BUILD_SOURCEBRANCHNAME' in content_osx['jobs'][0]['steps'][-1]['script']
+
+    with open(os.path.join(upload_on_branch_recipe.recipe, '.azure-pipelines', 'azure-pipelines-win.yml')) as fp:
+        content_win = yaml.load(fp)
+    assert 'UPLOAD_ON_BRANCH=foo-branch' in content_win['jobs'][0]['steps'][-1]['script']
+    assert 'BUILD_SOURCEBRANCHNAME' in content_win['jobs'][0]['steps'][-1]['script']
+
+    with open(os.path.join(upload_on_branch_recipe.recipe, '.azure-pipelines', 'azure-pipelines-linux.yml')) as fp:
+        content_lin = yaml.load(fp)
+    assert 'UPLOAD_ON_BRANCH="foo-branch"' in content_lin['jobs'][0]['steps'][1]['script']
+    assert 'BUILD_SOURCEBRANCHNAME' in content_lin['jobs'][0]['steps'][1]['script']
+
+
+def test_upload_on_branch_appveyor(upload_on_branch_recipe, jinja_env):
+    cnfgr_fdstk.render_appveyor(
+        jinja_env=jinja_env, forge_config=upload_on_branch_recipe.config, forge_dir=upload_on_branch_recipe.recipe
+    )
+    # Check that the parameter is in the configuration.
+    assert 'upload_on_branch' in upload_on_branch_recipe.config
+    assert upload_on_branch_recipe.config['upload_on_branch'] == 'foo-branch'
+
+    # Check that the parameter is in the generated file.
+    with open(os.path.join(upload_on_branch_recipe.recipe, '.appveyor.yml')) as fp:
+        content = yaml.load(fp)
+    assert '%APPVEYOR_REPO_BRANCH%' in content['deploy_script'][0]
+    assert 'UPLOAD_ON_BRANCH=foo-branch' in content['deploy_script'][1]
+
+
 def test_circle_with_yum_reqs(py_recipe, jinja_env):
     with open(
         os.path.join(py_recipe.recipe, "recipe", "yum_requirements.txt"), "w"
@@ -279,7 +318,8 @@ def test_circle_skipped(linux_skipped_recipe, jinja_env):
     circle_linux_file = os.path.join(forge_dir, ".circleci", "run_docker_build.sh")
     circle_config_file = os.path.join(forge_dir, ".circleci", "config.yml")
 
-    cnfgr_fdstk.copy_feedstock_content(forge_dir)
+    config = copy.deepcopy(linux_skipped_recipe.config)
+    cnfgr_fdstk.copy_feedstock_content(config, forge_dir)
     cnfgr_fdstk.render_circle(
         jinja_env=jinja_env,
         forge_config=linux_skipped_recipe.config,
@@ -289,10 +329,9 @@ def test_circle_skipped(linux_skipped_recipe, jinja_env):
     assert not os.path.exists(circle_linux_file)
     assert os.path.exists(circle_config_file)
 
-    config = copy.deepcopy(linux_skipped_recipe.config)
     config["provider"]["osx"] = "circle"
 
-    cnfgr_fdstk.copy_feedstock_content(forge_dir)
+    cnfgr_fdstk.copy_feedstock_content(config, forge_dir)
     cnfgr_fdstk.render_circle(
         jinja_env=jinja_env, forge_config=config, forge_dir=forge_dir
     )
@@ -363,7 +402,7 @@ def test_migrator_downgrade_recipe(recipe_migration_cfep9_downgrade, jinja_env):
         forge_config=recipe_migration_cfep9_downgrade.config,
         forge_dir=recipe_migration_cfep9_downgrade.recipe,
     )
-    assert len(os.listdir(os.path.join(recipe_migration_cfep9_downgrade.recipe, 'migrations'))) == 2
+    assert len(os.listdir(os.path.join(recipe_migration_cfep9_downgrade.recipe, '.ci_support', 'migrations'))) == 2
 
     with open(
         os.path.join(
@@ -383,7 +422,7 @@ def test_migrator_compiler_version_recipe(recipe_migration_win_compiled, jinja_e
         forge_config=recipe_migration_win_compiled.config,
         forge_dir=recipe_migration_win_compiled.recipe,
     )
-    assert len(os.listdir(os.path.join(recipe_migration_win_compiled.recipe, 'migrations'))) == 1
+    assert len(os.listdir(os.path.join(recipe_migration_win_compiled.recipe, '.ci_support', 'migrations'))) == 1
 
     rendered_variants = os.listdir(os.path.join(recipe_migration_win_compiled.recipe, ".ci_support"))
     
@@ -391,3 +430,16 @@ def test_migrator_compiler_version_recipe(recipe_migration_win_compiled, jinja_e
     assert 'win_c_compilervs2008python2.7target_platformwin-64.yaml' in rendered_variants
     assert 'win_c_compilervs2017python3.5target_platformwin-32.yaml' in rendered_variants
     assert 'win_c_compilervs2017python3.5target_platformwin-64.yaml' in rendered_variants
+
+
+def test_files_skip_render(render_skipped_recipe, jinja_env):
+    cnfgr_fdstk.render_README(
+        jinja_env=jinja_env,
+        forge_config=render_skipped_recipe.config,
+        forge_dir=render_skipped_recipe.recipe,
+    )
+    cnfgr_fdstk.copy_feedstock_content(render_skipped_recipe.config, render_skipped_recipe.recipe)
+    skipped_files = [".gitignore", ".gitattributes", "README.md", "LICENSE.txt"]
+    for f in skipped_files:
+        fpath = os.path.join(render_skipped_recipe.recipe, f)
+        assert not os.path.exists(fpath)
