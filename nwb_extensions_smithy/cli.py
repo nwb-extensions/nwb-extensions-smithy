@@ -6,7 +6,7 @@ import argparse
 from textwrap import dedent
 
 from . import feedstock_io
-from . import lint_recipe
+# from . import lint_recipe
 from . import azure_ci_utils
 from . import __version__
 from .metadata import MetaData
@@ -314,46 +314,46 @@ class AddAzureBuildId(Subcommand):
 #         )
 
 
-class RecipeLint(Subcommand):
-    subcommand = "recipe-lint"
-
-    def __init__(self, parser):
-        super(RecipeLint, self).__init__(parser, "Lint a single NWB extension recipe.")
-        scp = self.subcommand_parser
-        scp.add_argument("--conda-forge", action="store_true")
-        scp.add_argument("recipe_directory", default=[os.getcwd()], nargs="*")
-
-    def __call__(self, args):
-        all_good = True
-        for recipe in args.recipe_directory:
-            lints, hints = lint_recipe.main(
-                os.path.join(recipe),
-                conda_forge=args.conda_forge,
-                return_hints=True,
-            )
-            if lints:
-                all_good = False
-                print(
-                    "{} has some lint:\n  {}".format(
-                        recipe, "\n  ".join(lints)
-                    )
-                )
-                if hints:
-                    print(
-                        "{} also has some suggestions:\n  {}".format(
-                            recipe, "\n  ".join(hints)
-                        )
-                    )
-            elif hints:
-                print(
-                    "{} has some suggestions:\n  {}".format(
-                        recipe, "\n  ".join(hints)
-                    )
-                )
-            else:
-                print("{} is in fine form".format(recipe))
-        # Exit code 1 for some lint, 0 for no lint.
-        sys.exit(int(not all_good))
+# class RecipeLint(Subcommand):
+#     subcommand = "recipe-lint"
+#
+#     def __init__(self, parser):
+#         super(RecipeLint, self).__init__(parser, "Lint a single NWB extension recipe.")
+#         scp = self.subcommand_parser
+#         scp.add_argument("--conda-forge", action="store_true")
+#         scp.add_argument("recipe_directory", default=[os.getcwd()], nargs="*")
+#
+#     def __call__(self, args):
+#         all_good = True
+#         for recipe in args.recipe_directory:
+#             lints, hints = lint_recipe.main(
+#                 os.path.join(recipe),
+#                 conda_forge=args.conda_forge,
+#                 return_hints=True,
+#             )
+#             if lints:
+#                 all_good = False
+#                 print(
+#                     "{} has some lint:\n  {}".format(
+#                         recipe, "\n  ".join(lints)
+#                     )
+#                 )
+#                 if hints:
+#                     print(
+#                         "{} also has some suggestions:\n  {}".format(
+#                             recipe, "\n  ".join(hints)
+#                         )
+#                     )
+#             elif hints:
+#                 print(
+#                     "{} has some suggestions:\n  {}".format(
+#                         recipe, "\n  ".join(hints)
+#                     )
+#                 )
+#             else:
+#                 print("{} is in fine form".format(recipe))
+#         # Exit code 1 for some lint, 0 for no lint.
+#         sys.exit(int(not all_good))
 
 
 def main():
