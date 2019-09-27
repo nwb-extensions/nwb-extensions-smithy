@@ -1,12 +1,11 @@
 import os
 import subprocess
 import sys
-import time
 import argparse
 
 from textwrap import dedent
 
-from . import configure_feedstock
+from . import feedstock_io
 from . import lint_recipe
 from . import azure_ci_utils
 from . import __version__
@@ -25,7 +24,7 @@ def generate_feedstock_content(target_directory, source_recipe_dir):
     # If there is a source recipe, copy it now to the right dir
     if source_recipe_dir:
         try:
-            configure_feedstock.copytree(source_recipe_dir, target_directory)
+            feedstock_io.copytree(source_recipe_dir, target_directory)
         except Exception as e:
             raise type(e)(
                 str(e) + " while copying file %s" % source_recipe_dir
@@ -265,54 +264,54 @@ class AddAzureBuildId(Subcommand):
             config["azure"]["project_id"] = build_info['project_id']
 
 
-class Regenerate(Subcommand):
-    subcommand = "regenerate"
-    aliases = ["rerender"]
-
-    def __init__(self, parser):
-        super(Regenerate, self).__init__(
-            parser,
-            "Regenerate / update the CI support files of the feedstock.",
-        )
-        scp = self.subcommand_parser
-        scp.add_argument(
-            "--feedstock_directory",
-            default=os.getcwd(),
-            help="The directory of the feedstock git repository.",
-        )
-        scp.add_argument(
-            "-c",
-            "--commit",
-            nargs="?",
-            choices=["edit", "auto"],
-            const="edit",
-            help="Whether to setup a commit or not.",
-        )
-        scp.add_argument(
-            "--no-check-uptodate",
-            action="store_true",
-            help="Don't check that nwb-extensions-smithy and conda-forge-pinning are uptodate",
-        )
-        scp.add_argument(
-            "-e",
-            "--exclusive-config-file",
-            default=None,
-            help="Exclusive conda-build config file to replace conda-forge-pinning. "
-            + "For advanced usage only",
-        )
-        scp.add_argument("--check",
-                         action="store_true",
-                         default=False,
-                         help="Check if regenerate can be performed")
-
-    def __call__(self, args):
-        configure_feedstock.main(
-            args.feedstock_directory,
-            no_check_uptodate=args.no_check_uptodate,
-            commit=args.commit,
-            exclusive_config_file=args.exclusive_config_file,
-            check=args.check
-        )
+# class Regenerate(Subcommand):
+#     subcommand = "regenerate"
+#     aliases = ["rerender"]
+#
+#     def __init__(self, parser):
+#         super(Regenerate, self).__init__(
+#             parser,
+#             "Regenerate / update the CI support files of the feedstock.",
+#         )
+#         scp = self.subcommand_parser
+#         scp.add_argument(
+#             "--feedstock_directory",
+#             default=os.getcwd(),
+#             help="The directory of the feedstock git repository.",
+#         )
+#         scp.add_argument(
+#             "-c",
+#             "--commit",
+#             nargs="?",
+#             choices=["edit", "auto"],
+#             const="edit",
+#             help="Whether to setup a commit or not.",
+#         )
+#         scp.add_argument(
+#             "--no-check-uptodate",
+#             action="store_true",
+#             help="Don't check that nwb-extensions-smithy and conda-forge-pinning are uptodate",
+#         )
+#         scp.add_argument(
+#             "-e",
+#             "--exclusive-config-file",
+#             default=None,
+#             help="Exclusive conda-build config file to replace conda-forge-pinning. "
+#             + "For advanced usage only",
+#         )
+#         scp.add_argument("--check",
+#                          action="store_true",
+#                          default=False,
+#                          help="Check if regenerate can be performed")
+#
+#     def __call__(self, args):
+#         configure_feedstock.main(
+#             args.feedstock_directory,
+#             no_check_uptodate=args.no_check_uptodate,
+#             commit=args.commit,
+#             exclusive_config_file=args.exclusive_config_file,
+#             check=args.check
+#         )
 
 
 class RecipeLint(Subcommand):

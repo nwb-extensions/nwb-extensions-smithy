@@ -14,7 +14,7 @@ def main():
         url="https://github.com/nwb-extensions/nwb-extensions-smithy",
         entry_points=dict(
             console_scripts=[
-                "feedstocks = nwb_extensions_smithy.feedstocks:main",
+                # "feedstocks = nwb_extensions_smithy.feedstocks:main",
                 "nwb-extensions-smithy = nwb_extensions_smithy.cli:main",
             ]
         ),

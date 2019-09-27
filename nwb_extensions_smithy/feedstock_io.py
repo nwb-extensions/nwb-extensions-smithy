@@ -102,3 +102,21 @@ def copy_file(src, dst):
     repo = get_repo(dst)
     if repo:
         repo.index.add([dst])
+
+
+def copytree(src, dst, ignore=(), root_dst=None):
+    """This emulates shutil.copytree, but does so with our git file tracking, so that the new files
+    are added to the repo"""
+    if root_dst is None:
+        root_dst = dst
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.relpath(d, root_dst) in ignore:
+            continue
+        elif os.path.isdir(s):
+            if not os.path.exists(d):
+                os.makedirs(d)
+            copytree(s, d, ignore, root_dst=root_dst)
+        else:
+            copy_file(s, d)
