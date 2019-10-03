@@ -55,17 +55,17 @@ class Init(Subcommand):
 
         super(Init, self).__init__(
             parser,
-            "Create a feedstock git repository, which contains a single NWB extension catalog entry.",
+            "Create a catalog record git repository, which contains a single NWB extension catalog record.",
         )
         scp = self.subcommand_parser
         scp.add_argument(
             "recipe_directory", help="The path to the source recipe directory."
         )
         scp.add_argument(
-            "--feedstock_directory",
-            default="./{package.name}-feedstock",
-            help="Target directory, where the new feedstock git repository should be "
-            "created. (Default: './<packagename>-feedstock')",
+            "--record_directory",
+            default="./{package.name}-record",
+            help="Target directory, where the new record git repository should be "
+            "created. (Default: './<packagename>-record')",
         )
 
     def __call__(self, args):
@@ -73,7 +73,7 @@ class Init(Subcommand):
         if not os.path.isdir(args.recipe_directory):
             raise IOError(
                 "The source recipe directory should be the directory of the "
-                "NWB Extension you want to build a feedstock for. Got {}".format(
+                "NWB extension you want to build a record repository for. Got {}".format(
                     args.recipe_directory
                 )
             )
@@ -82,23 +82,21 @@ class Init(Subcommand):
         # feedstock directory
         meta = MetaData(args.recipe_directory)
 
-        feedstock_directory = args.feedstock_directory.format(
-            package=argparse.Namespace(name=meta.name())
-        )
-        msg = "Initial feedstock commit with nwb-extensions-smithy {}.".format(__version__)
+        record_directory = args.record_directory.format(package=argparse.Namespace(name=meta.name()))
+        msg = "Initial commit with nwb-extensions-smithy {}.".format(__version__)
 
         try:
-            os.makedirs(feedstock_directory)
+            os.makedirs(record_directory)
         except FileExistsError:
-            print(f'A feedstock directory with the name {feedstock_directory} already exists.')
+            print(f'A record directory with the name {record_directory} already exists.')
             raise
-        subprocess.check_call(["git", "init"], cwd=feedstock_directory)
-        generate_feedstock_content(feedstock_directory, args.recipe_directory)
-        subprocess.check_call(["git", "commit", "-m", msg], cwd=feedstock_directory)
+        subprocess.check_call(["git", "init"], cwd=record_directory)
+        generate_feedstock_content(record_directory, args.recipe_directory)
+        subprocess.check_call(["git", "commit", "-m", msg], cwd=record_directory)
 
         # TODO
         print(
-            f"\nRepository created, now call 'nwb-extensions-smithy register-github --add-teams {feedstock_directory}'"
+            f"\nRepository created, now call 'nwb-extensions-smithy register-github --add-teams {record_directory}'"
         )
 
 
@@ -358,15 +356,12 @@ class AddAzureBuildId(Subcommand):
 
 def main():
 
-    parser = argparse.ArgumentParser(
-        "a tool to help create, administer and manage feedstocks."
-    )
+    parser = argparse.ArgumentParser("A tool to help create, administer and manage NWB extension catalog records.")
     subparser = parser.add_subparsers()
-    # TODO: Consider allowing plugins/extensions using entry_points.
-    # https://reinout.vanrees.org/weblog/2010/01/06/zest-releaser-entry-points.html
+
     for subcommand in Subcommand.__subclasses__():
         subcommand(subparser)
-    # And the alias for rerender
+
     parser.add_argument(
         "--version",
         action="version",

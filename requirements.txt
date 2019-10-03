@@ -9,3 +9,4 @@ ruamel.yaml
 #conda-forge-pinning
 #vsts-python-api
 toolz
+# run: conda install -c conda-forge vsts-python-api conda-build
