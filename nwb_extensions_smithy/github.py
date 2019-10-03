@@ -21,7 +21,7 @@ def gh_token():
             raise ValueError()
     except (IOError, ValueError):
         msg = (
-            "No github token. Go to https://github.com/settings/tokens/new and generate\n"
+            "No GitHub token. Go to https://github.com/settings/tokens/new and generate\n"
             "a token with repo access. Put it in ~/.nwb-extensions-smithy/github.token"
         )
         raise RuntimeError(msg)
@@ -76,7 +76,7 @@ def get_cached_team(org, team_name, description=""):
         pass
 
     try:
-        repo = org.get_repo("{}-feedstock".format(team_name))
+        repo = org.get_repo("{}-record".format(team_name))
         team = next((team for team in repo.get_teams() if team.name == team_name), None)
         if team:
             return team
@@ -96,10 +96,14 @@ def get_cached_team(org, team_name, description=""):
     return team
 
 
+def get_github_exception_msg(exception):
+    return exception.data.get("errors", [{}])[0].get("message", "")
+
+
 def create_github_repo(args):
     token = gh_token()
-    meta = MetaData(args.feedstock_directory)
-    feedstock_name = meta.name()
+    meta = MetaData(args.record_directory)
+    namespace = meta.name()
 
     gh = Github(token)
     user_or_org = None
@@ -111,25 +115,22 @@ def create_github_repo(args):
         # Use the organization provided.
         user_or_org = gh.get_organization(args.organization)
 
-    repo_name = "{}-feedstock".format(feedstock_name)
+    repo_name = "{}-record".format(namespace)
     try:
         gh_repo = user_or_org.create_repo(
             repo_name,
             has_wiki=False,
-            description="An NWB Extension repository for {}.".format(feedstock_name),
+            description="An NWB Extension Catalog record for the extension {}.".format(namespace),
         )
-        print("Created {} on github".format(gh_repo.full_name))
+        print("Created {} on GitHub".format(gh_repo.full_name))
     except GithubException as gh_except:
-        if (
-            gh_except.data.get("errors", [{}])[0].get("message", "")
-            != u"name already exists on this account"
-        ):
+        if get_github_exception_msg(gh_except) != u"name already exists on this account":
             raise
         gh_repo = user_or_org.get_repo(repo_name)
-        print("Github repository already exists.")
+        print("GitHub repository already exists.")
 
     # Now add this new repo as a remote on the local clone.
-    repo = Repo(args.feedstock_directory)
+    repo = Repo(args.record_directory)
     remote_name = args.remote_name.strip()
     if remote_name:
         if remote_name in [remote.name for remote in repo.remotes]:
@@ -150,7 +151,7 @@ def create_github_repo(args):
 
     if args.add_teams:
         if isinstance(user_or_org, Organization):
-            configure_github_team(meta, gh_repo, user_or_org, feedstock_name)
+            configure_github_team(meta, gh_repo, user_or_org, namespace)
 
 
 def accept_all_repository_invitations(gh):
@@ -171,7 +172,7 @@ def remove_from_project(gh, org, project):
     repo.remove_from_collaborators(user.login)
 
 
-def configure_github_team(meta, gh_repo, org, feedstock_name):
+def configure_github_team(meta, gh_repo, org, namespace):
 
     # Add a team for this repo and add the maintainers to it.
     superlative = [
@@ -202,7 +203,7 @@ def configure_github_team(meta, gh_repo, org, feedstock_name):
     maintainers = set(m for m in maintainers if "/" not in m)
 
     # Try to get team or create it if it doesn't exist.
-    team_name = feedstock_name
+    team_name = namespace
     current_maintainer_teams = list(gh_repo.get_teams())
     team = next(
         (team for team in current_maintainer_teams if team.name == team_name), None
@@ -217,10 +218,7 @@ def configure_github_team(meta, gh_repo, org, feedstock_name):
             )
             team.add_to_repos(gh_repo)
         except GithubException as gh_except:
-            if (
-                gh_except.data.get("errors", [{}])[0].get("message", "")
-                == u"Name has already been taken"
-            ):
+            if get_github_exception_msg(gh_except) == u"Name has already been taken":
                 raise RuntimeError(
                     f"Team {team_name} already exists on organization {org.login}."
                 )

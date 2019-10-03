@@ -67,6 +67,13 @@ class Init(Subcommand):
             help="Target directory, where the new record git repository should be "
             "created. (Default: './<packagename>-record')",
         )
+        scp.add_argument(
+            "--register-github",
+            action="store_true",
+            default=False,
+            help=("Register the new catalog git repo in the nwb-extensions organization on github, create teams, "
+                  "and register maintainers to them."),
+        )
 
     def __call__(self, args):
         # check some error conditions
@@ -94,10 +101,17 @@ class Init(Subcommand):
         generate_feedstock_content(record_directory, args.recipe_directory)
         subprocess.check_call(["git", "commit", "-m", msg], cwd=record_directory)
 
-        # TODO
-        print(
-            f"\nRepository created, now call 'nwb-extensions-smithy register-github --add-teams {record_directory}'"
-        )
+        if args.register_github:
+            from . import github
+
+            args.add_teams = True
+            args.organization = 'nwb-extensions'
+            args.remote_name = 'upstream'
+            github.create_github_repo(args)
+        else:
+            print(
+                f"\nRepository created, now call 'nwb-extensions-smithy register-github --add-teams {record_directory}'"
+            )
 
 
 class RegisterGithub(Subcommand):
