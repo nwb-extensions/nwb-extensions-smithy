@@ -76,8 +76,7 @@ def load_file(path):
         try:
             # TODO make sure this works with different encodings...
             content = render_meta_yaml("".join(f))
-            data = yaml.load(content, Loader=yaml.Loader)
-            # data = yaml.load(f.read(), Loader=yaml.Loader)
+            data = yaml.load(content)
         except yaml.error.YAMLError:
             raise RuntimeError(f'Cannot parse metadata in file {path}.')
     return clean(data)
@@ -88,7 +87,7 @@ def load_stream(stream):
     data = None
     try:
         # TODO make sure this works with different encodings...
-        data = yaml.load(stream, Loader=yaml.Loader)
+        data = yaml.load(stream)
     except yaml.error.YAMLError:
         raise RuntimeError(f'Cannot parse metadata from stream.')
     return clean(data)
