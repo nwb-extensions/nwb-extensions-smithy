@@ -56,6 +56,11 @@ def find_metadata(path):
 
     results = [f for f in glob.iglob(os.path.join(path, '**', meta_name), recursive=True)]
 
+    # ignore example recipe
+    example_recipe = os.path.join(path, 'example', meta_name)
+    if example_recipe in results:
+        results.pop(example_recipe)
+
     if len(results) > 1:
         base_recipe = os.path.join(path, meta_name)
         if base_recipe in results:
