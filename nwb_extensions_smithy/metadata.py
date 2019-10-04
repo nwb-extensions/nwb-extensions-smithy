@@ -59,7 +59,7 @@ def find_metadata(path):
     # ignore example recipe
     example_recipe = os.path.join(path, 'example', meta_name)
     if example_recipe in results:
-        results.pop(example_recipe)
+        results.remove(example_recipe)
 
     if len(results) > 1:
         base_recipe = os.path.join(path, meta_name)
