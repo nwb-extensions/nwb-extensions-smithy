@@ -6,7 +6,6 @@ from git import Repo
 
 from github import Github
 from github.GithubException import GithubException
-from github.Organization import Organization
 from github.Team import Team
 import github
 
@@ -64,6 +63,7 @@ def has_in_members(team, member):
     return status == 204
 
 
+# TODO do not use cached team
 def get_cached_team(org, team_name, description=""):
     cached_file = os.path.expanduser(
         "~/.nwb-extensions-smithy/{}-{}-team".format(org.login, team_name)
@@ -106,18 +106,11 @@ def create_github_repo(args):
     namespace = meta.name()
 
     gh = Github(token)
-    user_or_org = None
-    if args.user is not None:
-        pass
-        # User has been defined, and organization has not.
-        user_or_org = gh.get_user()
-    else:
-        # Use the organization provided.
-        user_or_org = gh.get_organization(args.organization)
+    org = gh.get_organization(args.organization)
 
     repo_name = "{}-record".format(namespace)
     try:
-        gh_repo = user_or_org.create_repo(
+        gh_repo = org.create_repo(
             repo_name,
             has_wiki=False,
             description="An NWB Extension Catalog record for the extension {}.".format(namespace),
@@ -126,7 +119,7 @@ def create_github_repo(args):
     except GithubException as gh_except:
         if get_github_exception_msg(gh_except) != u"name already exists on this account":
             raise
-        gh_repo = user_or_org.get_repo(repo_name)
+        gh_repo = org.get_repo(repo_name)
         print("GitHub repository already exists.")
 
     # Now add this new repo as a remote on the local clone.
@@ -144,14 +137,19 @@ def create_github_repo(args):
                 )
         else:
             repo.create_remote(remote_name, gh_repo.ssh_url)
+            print("Setting remote %s to %s" % (remote_name, gh_repo.ssh_url))
+
+    if args.add_self_collaborator:
+        gh_repo.add_to_collaborators(gh.get_user().login, "push")
+        print("Adding self (%s) to %s" % (gh.get_user().login, gh_repo.full_name))
 
     if args.extra_admin_users is not None:
         for user in args.extra_admin_users:
             gh_repo.add_to_collaborators(user, "admin")
+            print("Adding user %s as admin to %s" % (gh.get_user().login, gh_repo.full_name))
 
     if args.add_teams:
-        if isinstance(user_or_org, Organization):
-            configure_github_team(meta, gh_repo, user_or_org, namespace)
+        configure_github_team(meta, gh_repo, org, namespace)
 
 
 def accept_all_repository_invitations(gh):
@@ -236,13 +234,13 @@ def configure_github_team(meta, gh_repo, org, namespace):
     # Also add the new maintainers to all-members if not already included.
     for new_maintainer in maintainers - current_maintainers:
         print(
-            "Adding a new member ({}) to {}.".format(new_maintainer, team_name)
+            "Adding a new member ({}) to team {}.".format(new_maintainer, team_name)
         )
         add_membership(team, new_maintainer)
 
         if not has_in_members(all_members_team, new_maintainer):
             print(
-                "Adding a new member ({}) to {}. Welcome! :)".format(
+                "Adding a new member ({}) to organization {}. Welcome! :)".format(
                     new_maintainer, org.login
                 )
             )

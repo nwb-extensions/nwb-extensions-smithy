@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 import argparse
+import copy
 
 from textwrap import dedent
 
@@ -16,7 +17,7 @@ if sys.version_info[0] == 2:
     raise Exception("nwb-extensions-smithy does not support Python 2!")
 
 
-def generate_feedstock_content(target_directory, source_recipe_dir):
+def generate_record_content(target_directory, source_recipe_dir):
     target_directory = os.path.abspath(target_directory)
 
     if not os.path.exists(target_directory):
@@ -85,8 +86,7 @@ class Init(Subcommand):
                 )
             )
 
-        # parse the ndx-meta.yaml file and use package/name for the name of the
-        # feedstock directory
+        # parse the ndx-meta.yaml file and use package/name for the name of the record directory
         meta = MetaData(args.recipe_directory)
 
         record_directory = args.record_directory.format(package=argparse.Namespace(name=meta.name()))
@@ -98,16 +98,22 @@ class Init(Subcommand):
             print(f'A record directory with the name {record_directory} already exists.')
             raise
         subprocess.check_call(["git", "init"], cwd=record_directory)
-        generate_feedstock_content(record_directory, args.recipe_directory)
+        generate_record_content(record_directory, args.recipe_directory)
         subprocess.check_call(["git", "commit", "-m", msg], cwd=record_directory)
 
         if args.register_github:
             from . import github
 
-            args.add_teams = True
-            args.organization = 'nwb-extensions'
-            args.remote_name = 'upstream'
-            github.create_github_repo(args)
+            gh_args = copy.deepcopy(args)
+            gh_args.record_directory = record_directory
+            gh_args.add_teams = True
+            gh_args.add_self_collaborator = True
+            gh_args.organization = 'nwb-extensions'
+            gh_args.remote_name = 'upstream'
+            gh_args.extra_admin_users = None
+            github.create_github_repo(gh_args)
+
+            subprocess.check_call(["git", "push", gh_args.remote_name, "master"], cwd=record_directory)
         else:
             print(
                 f"\nRepository created, now call 'nwb-extensions-smithy register-github --add-teams {record_directory}'"
@@ -120,7 +126,7 @@ class RegisterGithub(Subcommand):
     def __init__(self, parser):
         #  nwb-extensions-smithy register-github ./ --organization=conda-forge
         super(RegisterGithub, self).__init__(
-            parser, "Register a repo for a feedstock at github."
+            parser, "Register a catalog record repo at GitHub."
         )
         scp = self.subcommand_parser
         scp.add_argument(
@@ -130,17 +136,19 @@ class RegisterGithub(Subcommand):
             help="Create teams and register maintainers to them.",
         )
         scp.add_argument(
-            "feedstock_directory",
-            help="The directory of the feedstock git repository.",
+            "--add-self-collaborator",
+            action="store_true",
+            default=False,
+            help="Add the current GitHub user as a collaborator to the repo with push access.",
         )
-        group = scp.add_mutually_exclusive_group()
-        group.add_argument(
-            "--user", help="github username under which to register this repo"
+        scp.add_argument(
+            "record_directory",
+            help="The directory of the catalog record git repository.",
         )
-        group.add_argument(
+        scp.add_argument(
             "--organization",
             default="nwb-extensions",
-            help="github organisation under which to register this repo",
+            help="GitHub organisation under which to register this repo",
         )
         scp.add_argument(
             "--remote-name",
