@@ -5,7 +5,7 @@ for d in */ ; do
     echo "$d"
     if nwb-extensions-smithy init --register-github "$d"; then
       git rm -r "$d"
-      git commit -m "Remove registered extension record $d"
+      git commit -m "Remove staged extension $d"
   	fi
   fi
 done
