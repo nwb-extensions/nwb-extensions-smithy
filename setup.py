@@ -20,7 +20,7 @@ def main():
         ),
         include_package_data=True,
         packages=["nwb_extensions_smithy"],
-        scripts=['bin/smithy_init_all.sh'],
+        scripts=['bin/smithy_init_all'],
         # As nwb-extensions-smithy has resources as part of the codebase, it is
         # not zip-safe.
         zip_safe=False,
