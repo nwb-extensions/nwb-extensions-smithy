@@ -1,11 +1,11 @@
 #!/bin/bash
 
 for d in */ ; do
-  if [ $d != "example/" ]; then
+  if [ $d != "example/" ] && [[ $d != *-record/ ]]; then
     echo "$d"
     if nwb-extensions-smithy init --register-github "$d"; then
       git rm -r "$d"
-      git commit -m "Removing registered extension record $d"
+      git commit -m "Remove registered extension record $d"
   	fi
   fi
 done
