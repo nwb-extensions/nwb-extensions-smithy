@@ -1,7 +1,7 @@
 #!/bin/bash
 
 for d in */ ; do
-  if [ $d != "example/" ] && [[ $d != *-record/ ]]; then
+  if [ $d != "example/" ] && [ $d != "nwb-extensions-smithy/" ] && [[ $d != *-record/ ]]; then
     echo "$d"
     if nwb-extensions-smithy init --register-github "$d"; then
       git rm -r "$d"
