@@ -113,7 +113,9 @@ class Init(Subcommand):
             gh_args.extra_admin_users = None
             github.create_github_repo(gh_args)
 
-            subprocess.check_call(["git", "push", gh_args.remote_name, "main"], cwd=record_directory)
+            token = github.gh_token()
+            subprocess.check_call(["git", "push", f"https://{token}@github.com/nwb-extensions/{record_directory}.git"],
+                cwd=record_directory)
         else:
             print(
                 f"\nRepository created, now call 'nwb-extensions-smithy register-github --add-teams {record_directory}'"
