@@ -28,32 +28,8 @@ def gh_token():
 
 
 def create_team(org, name, description, repo_names=[]):
-    # PyGithub creates secret teams, and has no way of turning that off! :(
-    post_parameters = {
-        "name": name,
-        "description": description,
-        "privacy": "closed",
-        "permission": "push",
-        "repo_names": repo_names,
-    }
-    headers, data = org._requester.requestJsonAndCheck(
-        "POST", org.url + "/teams", input=post_parameters
-    )
-    return Team(org._requester, headers, data, completed=True)
-
-
-def add_membership(team, member):
-    headers, data = team._requester.requestJsonAndCheck(
-        "PUT", team.url + "/memberships/" + member
-    )
-    return (headers, data)
-
-
-def remove_membership(team, member):
-    headers, data = team._requester.requestJsonAndCheck(
-        "DELETE", team.url + "/memberships/" + member
-    )
-    return (headers, data)
+    team = org.create_team(name, repo_names=repo_names, privacy="closed", description=description)
+    return team
 
 
 def has_in_members(team, member):
@@ -149,7 +125,7 @@ def create_github_repo(args):
             print("Adding user %s as admin to %s" % (gh.get_user().login, gh_repo.full_name))
 
     if args.add_teams:
-        configure_github_team(meta, gh_repo, org, namespace)
+        configure_github_team(meta, gh_repo, org, namespace, gh)
 
 
 def accept_all_repository_invitations(gh):
@@ -170,7 +146,7 @@ def remove_from_project(gh, org, project):
     repo.remove_from_collaborators(user.login)
 
 
-def configure_github_team(meta, gh_repo, org, namespace):
+def configure_github_team(meta, gh_repo, org, namespace, gh):
 
     # Add a team for this repo and add the maintainers to it.
     superlative = [
@@ -236,7 +212,8 @@ def configure_github_team(meta, gh_repo, org, namespace):
         print(
             "Adding a new member ({}) to team {}.".format(new_maintainer, team_name)
         )
-        add_membership(team, new_maintainer)
+        new_maintainer_user = gh.get_user(new_maintainer)
+        team.add_membership(new_maintainer_user)
 
         if not has_in_members(all_members_team, new_maintainer):
             print(
@@ -244,7 +221,7 @@ def configure_github_team(meta, gh_repo, org, namespace):
                     new_maintainer, org.login
                 )
             )
-            add_membership(all_members_team, new_maintainer)
+            all_members_team.add_membership(new_maintainer_user)
             new_org_members.add(new_maintainer)
 
     # Mention any maintainers that need to be removed (unlikely here).
